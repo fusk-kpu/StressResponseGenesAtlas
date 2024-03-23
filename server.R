@@ -1,9 +1,10 @@
 shinyServer(function(input, output, session) {
-  # Atlas ####
-  # Microarray ############################################################################
+  # Atlas ###########################################################################################################
+  ## Microarray #####
+  ### overview
   select_microarray <- callModule(overview, "SRscore_microarray", SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
   
-  ## each stress ####
+  ### each stress
   callModule(stress, "ABAm", ABA_ratiom, SRscore_microarray, select_microarray, ABA_metadatam)
   callModule(stress, "coldm", cold_ratiom, SRscore_microarray, select_microarray, cold_metadatam)
   callModule(stress, "DC3000m", DC3000_ratiom, SRscore_microarray, select_microarray, DC3000_metadatam)
@@ -16,6 +17,23 @@ shinyServer(function(input, output, session) {
   callModule(stress, "saltm", salt_ratiom, SRscore_microarray, select_microarray, salt_metadatam)
   callModule(stress, "woundm", wound_ratiom, SRscore_microarray, select_microarray, wound_metadatam)
 
+  ## RNA-Seq #####
+  ### overview
+  select_rnaseq <- callModule(overview, "SRscore_rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
+  
+  ### each stress
+  callModule(stress, "ABAr", ABA_ratior, SRscore_rnaseq, select_rnaseq, ABA_metadatar)
+  callModule(stress, "coldr", cold_ratior, SRscore_rnaseq, select_rnaseq, cold_metadatar)
+  callModule(stress, "DC3000r", DC3000_ratior, SRscore_rnaseq, select_rnaseq, DC3000_metadatar)
+  callModule(stress, "droughtr", drought_ratior, SRscore_rnaseq, select_rnaseq, drought_metadatar)
+  callModule(stress, "heatr", heat_ratior, SRscore_rnaseq, select_rnaseq, heat_metadatar)
+  callModule(stress, "highlightr", highlight_ratior, SRscore_rnaseq, select_rnaseq, highlight_metadatar)
+  callModule(stress, "hypoxiar", hypoxia_ratior, SRscore_rnaseq, select_rnaseq, hypoxia_metadatar)
+  callModule(stress, "osmoticr", osmotic_ratior, SRscore_rnaseq, select_rnaseq, osmotic_metadatar)
+  callModule(stress, "oxidationr", oxidation_ratior, SRscore_rnaseq, select_rnaseq, oxidation_metadatar)
+  callModule(stress, "salt", salt_ratior, SRscore_rnaseq, select_rnaseq, salt_metadatar)
+  callModule(stress, "wound", wound_ratior, SRscore_rnaseq, select_rnaseq, wound_metadatar)
+  
   ## help popup ####
   observeEvent(input$select, {
     showModal(modalDialog(
@@ -36,27 +54,11 @@ shinyServer(function(input, output, session) {
     ))
   })
   
-  # RNA-Seq ############################################################################
-  select_rnaseq <- callModule(overview, "SRscore_rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
-  
-  ## each stress ####
-  callModule(stress, "ABAr", ABA_ratior, SRscore_rnaseq, select_rnaseq, ABA_metadatar)
-  callModule(stress, "coldr", cold_ratior, SRscore_rnaseq, select_rnaseq, cold_metadatar)
-  callModule(stress, "DC3000r", DC3000_ratior, SRscore_rnaseq, select_rnaseq, DC3000_metadatar)
-  callModule(stress, "droughtr", drought_ratior, SRscore_rnaseq, select_rnaseq, drought_metadatar)
-  callModule(stress, "heatr", heat_ratior, SRscore_rnaseq, select_rnaseq, heat_metadatar)
-  callModule(stress, "highlightr", highlight_ratior, SRscore_rnaseq, select_rnaseq, highlight_metadatar)
-  callModule(stress, "hypoxiar", hypoxia_ratior, SRscore_rnaseq, select_rnaseq, hypoxia_metadatar)
-  callModule(stress, "osmoticr", osmotic_ratior, SRscore_rnaseq, select_rnaseq, osmotic_metadatar)
-  callModule(stress, "oxidationr", oxidation_ratior, SRscore_rnaseq, select_rnaseq, oxidation_metadatar)
-  callModule(stress, "salt", salt_ratior, SRscore_rnaseq, select_rnaseq, salt_metadatar)
-  callModule(stress, "wound", wound_ratior, SRscore_rnaseq, select_rnaseq, wound_metadatar)
-  
-  # TemplateMatch ####
+  # TemplateMatch ##################################################################################################
   callModule(TemplateMatch, "microarray", genefinder_microarray, select_microarray, SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
   callModule(TemplateMatch, "rnaseq", genefinder_rnaseq, select_rnaseq, SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
   
-  # Unknown ####
+  # Unknown ########################################################################################################
   callModule(Unknown, "microarray", SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
   callModule(Unknown, "rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
   })

@@ -10,7 +10,7 @@ for(package in BCPackages) library(package, character.only = TRUE)
 
 source("data_processing.R", local = TRUE)
 
-# ATlas ############################################################################
+# Atlas ############################################################################
 
 overviewUI <- function(id) {
   ns <- NS(id)
