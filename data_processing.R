@@ -151,8 +151,6 @@ load("data/rnaseq/SRratio/oxidation.RData")
 load("data/rnaseq/SRratio/salt.RData")
 load("data/rnaseq/SRratio/wound.RData")
 
-load("data/rnaseq/SRratio_rnaseq.RData")
-
 ## メタデータの読み込み ####
 load("data/rnaseq/metadata_rnaseq.RData")
 
