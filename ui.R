@@ -24,7 +24,8 @@ shinyUI(
                                              tabPanel("wound", stressUI("woundm"))
                                              )
                                  ),
-                        tabPanel("Template matching", TemplateMatchUI("microarray"))
+                        tabPanel("Template matching", TemplateMatchUI("microarray")),
+                        tabPanel("Unknown", UnknownUI("microarray"))
                         ),
              navbarMenu("RNA-Seq",
                         tabPanel("Atlas",

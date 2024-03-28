@@ -10,7 +10,7 @@ for(package in BCPackages) library(package, character.only = TRUE)
 
 source("data_processing.R", local = TRUE)
 
-# Atlas ############################################################################
+# ATlas ############################################################################
 
 overviewUI <- function(id) {
   ns <- NS(id)
@@ -21,15 +21,24 @@ overviewUI <- function(id) {
     br(),
     br(),
     sidebarLayout(
-      sidebarPanel(width = 4,
-                   textAreaInput(ns("text"), h3("Input list of identifiers"),
+      sidebarPanel(h3(strong("Bulk Search → Heatmap")), width = 3,
+                   textAreaInput(ns("text"), h4("1. Input list of identifiers :"),
                                  width = "400px", height = "300px"
-                                 ),
-                   actionButton(ns("button"), "submit",
+                   ),
+                   actionButton(ns("button"), "Submit",
                                 style = "color: white; background-color: #337ab7; border-color: #2e6da4"),
                    actionButton(ns("example1"), "Example1"),
                    actionButton(ns("example2"), "Example2"),
-                   h3("Plot heatmap"),
+                   br(),
+                   h4("You can remove inappropriate rows if any."),
+                   "1. Select rows in the table to the right.",
+                   br(),
+                   "2. Click this button :",
+                   actionButton(ns("remove"), "Remove",
+                                style = "color: red"),
+                   br(),
+                   br(),
+                   h4("2. Control paremeters of heatmap"),
                    selectInput(ns("name"),
                                label = "Choose y axis :",
                                choices = c("ensembl_gene_id",
@@ -38,46 +47,50 @@ overviewUI <- function(id) {
                    numericInput(ns("height"),
                                 label = "height :",
                                 value = 400),
-                   actionButton(ns("heatmap"), "Heatmap",
+                   actionButton(ns("heatmap"), "Plot",
                                 style = "color: white; background-color: #337ab7; border-color: #2e6da4")
-                   ),
+      ),
       mainPanel(
         dataTableOutput(ns("atlas_pick"))
-        )
+      )
     )
-    )
+  )
 }
 
 overview <- function(input, output, session, srga, cl, Breaks, Color) {
   output$atlas <- renderDataTable({
-      datatable(
-        srga,
-        filter = "top",
-        selection = "single",
-        extensions = "Buttons",
-        rownames = FALSE,
-        escape = FALSE,
-        options = list(columnDefs = list(list(className = "dt-nowrap", targets = "_all")),
-                       dom = "lfrtBip", buttons = list(list(extend = "collection",
-                                                            buttons = list(list(extend = "csv", filename = "SRGA"),
-                                                                           list(extend = "excel", filename = "SRGA")),
-                                                            text = "Download"))
-        )
-      ) %>%
-        formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
-    }, server = TRUE)
+    datatable(
+      srga,
+      filter = "top",
+      selection = "single",
+      extensions = "Buttons",
+      rownames = FALSE,
+      escape = FALSE,
+      options = list(columnDefs = list(list(className = "dt-nowrap", targets = "_all")),
+                     dom = "lfrtBip", buttons = list(list(extend = "collection",
+                                                          buttons = list(list(extend = "csv", filename = "SRGA"),
+                                                                         list(extend = "excel", filename = "SRGA")),
+                                                          text = "Download"))
+      )
+    ) %>%
+      formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
+  }, server = TRUE)
   
   rv  <- reactiveValues(df = NULL)
   
   # ここの注意点としては、SYMBOLの区切り文字が予め"/"である必要がある。
-  lap <- reactive(lapply(strsplit(apply(srga, 1, paste, collapse = "/"), "/"), match, strsplit(input$text, " |\n|\t|,")[[1]]))
+  lap <- reactive(lapply(lapply(strsplit(apply(srga, 1, paste, collapse = "/"), "/"), tolower), match, strsplit(tolower(input$text), " |\n|\t|,")[[1]]))
   
   observeEvent(input$button, {
     rv$df <- srga[which(lapply(lap(), any) == TRUE), ]
   })
-
+  
+  observeEvent(input$remove, {
+    rv$df <- rv$df[-as.numeric(input$atlas_pick_rows_selected), ]
+  })
+  
   observeEvent(input$example1, {
-    name <- paste("AT1G01050", "AT1G01060", "AT1G01070", "AT1G01080")
+    name <- paste("ADH1", "DREB1A", "ELIP1", "HSP17.8", "JAZ1", "NCED3", "PP2CA")
     updateTextAreaInput(session, "text", value = name)
   })
   observeEvent(input$example2, {
@@ -89,7 +102,6 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
     datatable(
       rv$df,
       filter = "top",
-      selection = "single",
       extensions = "Buttons",
       rownames = FALSE,
       escape = FALSE,
@@ -107,7 +119,18 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
     heatmaply(Filter(is.numeric,
                      magrittr::set_rownames(rv$df, 
                                             value = rv$df[, input$name])),
-              height = input$height)
+              height = input$height,
+              grid_gap = 0.2, grid_color = "gray90",
+              scale_fill_gradient_fun = scale_fill_gradient2(
+                low = "deepskyblue",
+                high = "hotpink",
+                midpoint = 0
+              ),
+              cellnote = Filter(is.numeric,
+                                magrittr::set_rownames(rv$df, 
+                                                       value = rv$df[, input$name])),
+              cellnote_size = 18,
+              cellnote_textposition = "middle center")
   )
   
   output$plot <- renderPlotly({
@@ -120,10 +143,11 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
     showModal(modalDialog({
       plotlyOutput(ns("plot"))},
       easyClose = TRUE,
+      size = "l",
       title = "Heatmap"))
   })
   
-
+  
   return(reactive(input$atlas_rows_selected))
 }
 
@@ -132,7 +156,7 @@ stressUI <- function(id) {
   tagList(
     br(),
     actionButton(ns("button_ratio"), "Show SRratio", icon("table"),
-               style = "color: white; background-color: #337ab7; border-color: #2e6da4"),
+                 style = "color: white; background-color: #337ab7; border-color: #2e6da4"),
     br(),
     br(),
     dataTableOutput(ns("ratio")),
@@ -143,6 +167,8 @@ stressUI <- function(id) {
                  style = "color: white; background-color: #337ab7; border-color: #2e6da4"),
     actionButton(ns("button_metadata_more"), "", icon("filter"),
                  style = "color: pink; background-color: white; border-color: #2e6da4"),
+    actionButton(ns("button_metadata_middle"), "", icon("filter"),
+                 style = "color: black; background-color: white; border-color: #2e6da4"),
     actionButton(ns("button_metadata_less"), "", icon("filter"),
                  style = "color: skyblue; background-color: white; border-color: #2e6da4"),
     br(),
@@ -173,6 +199,10 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
   
   more <- reactive({
     which(metadata$treated_sample %in% colnames(rv$ratio)[rv$ratio >= 2])
+  })
+  
+  middle <- reactive({
+    which(metadata$treated_sample %in% colnames(rv$ratio)[-2 <= rv$ratio & rv$ratio <= 2])
   })
   
   less <- reactive({
@@ -214,6 +244,20 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     )
   })
   
+  observeEvent(input$button_metadata_middle, {
+    rv$metadata <- datatable(
+      metadata[middle(), ],
+      selection = "single",
+      rownames = FALSE,
+      options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
+                     dom = 'flrtBip', 
+                     buttons = list(list(extend = 'collection',
+                                         buttons = list(list(extend = 'csv', filename = 'SRGA'),
+                                                        list(extend = 'excel', filename = 'SRGA')),
+                                         text = 'Download')))
+    )
+  })
+  
   observeEvent(input$button_metadata_less, {
     rv$metadata <- datatable(
       metadata[less(), ],
@@ -240,32 +284,33 @@ TemplateMatchUI <- function(id) {
   
   tagList(
     sidebarLayout(
-      sidebarPanel(width = 3,
-        selectInput(ns("method"), 
-                    label = "Choose a method :",
-                    choices = c("euclidean","maximum", "manhattan", 
-                                "canberra", "correlation", "binary"),
-                    selected = "euclidean"),
-        numericInput(ns("display"),
-                     label = "Number of results to display :",
-                     value = 5),
-        h3("Plot heatmap"),
-        selectInput(ns("name"),
-                    label = "Choose y axis :",
-                    choices = c("ensembl_gene_id",
-                                "SYMBOL"),
-                    selected = "ensembl_gene_id"),
-        numericInput(ns("height"),
-                     label = "height :",
-                     value = 400),
-        actionButton(ns("heatmap"), "Heatmap",
-                     style = "color: white; background-color: #337ab7; border-color: #2e6da4")
-        ),
+      sidebarPanel(h3(strong("Teplate Matching → Heatmap")), width = 3,
+                   h4("1. Select a gene in overview"),
+                   selectInput(ns("method"), 
+                               label = "Choose a method :",
+                               choices = c("euclidean","maximum", "manhattan", 
+                                           "canberra", "correlation", "binary"),
+                               selected = "euclidean"),
+                   numericInput(ns("display"),
+                                label = "Number of results to display :",
+                                value = 5),
+                   h4("2. Control paremeters of heatmap"),
+                   selectInput(ns("name"),
+                               label = "Choose y axis :",
+                               choices = c("ensembl_gene_id",
+                                           "SYMBOL"),
+                               selected = "ensembl_gene_id"),
+                   numericInput(ns("height"),
+                                label = "height :",
+                                value = 400),
+                   actionButton(ns("heatmap"), "Plot",
+                                style = "color: white; background-color: #337ab7; border-color: #2e6da4")
+      ),
       mainPanel(width = 9,
                 dataTableOutput(ns("close_genes")),
                 dataTableOutput(ns("selected"))
-                )
       )
+    )
   )
 }
 
@@ -279,7 +324,7 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
       add_column(srga[close_genes()[[1]]$indices, ], 
                  "dists" = round(close_genes()[[1]]$dists, digits = 3),
                  .after = max(which(sapply(srga, is.numeric)))
-                 ),
+      ),
       filter = "top",
       selection = "single",
       extensions = c("Buttons", "FixedColumns"),
@@ -313,10 +358,18 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
   
   heatmap_tbl <- reactive(
     heatmaply(Filter(is.numeric,
-           magrittr::set_rownames(srga[close_genes()[[1]]$indices, ], 
-                                  value = srga[close_genes()[[1]]$indices, input$name])),
-           height = input$height)
-    )
+                     magrittr::set_rownames(srga[close_genes()[[1]]$indices, ], 
+                                            value = srga[close_genes()[[1]]$indices, input$name])),
+              height = input$height,
+              grid_gap = 0.2, grid_color = "gray90",
+              scale_fill_gradient_fun = scale_fill_gradient2(
+                low = "deepskyblue",
+                high = "hotpink",
+                midpoint = 0
+              ),
+              Rowv = FALSE,
+              Colv = FALSE)
+  )
   
   output$plot <- renderPlotly({
     heatmap_tbl()
@@ -328,8 +381,9 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
     showModal(modalDialog({
       plotlyOutput(ns("plot"))},
       easyClose = TRUE,
+      size = "l",
       title = "Heatmap")
-      )
+    )
   })
 }
 
@@ -401,14 +455,6 @@ Unknown <- function(input, output, session, srga, cl, Breaks, Color) {
     ) %>%
       formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
   }, server = FALSE)
-  
-  observeEvent(input$show_heatmap, {
-    htmp <- values$df
-  })
-  
-  output$heatmap <- renderPlotly({
-    heatmaply(htmp[, 1:10])
-  })
   
   return(reactive(input$selected_genes_rows_selected))
 }
