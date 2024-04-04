@@ -79,7 +79,19 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
   rv  <- reactiveValues(df = NULL)
   
   # ここの注意点としては、SYMBOLの区切り文字が予め"/"である必要がある。
-  lap <- reactive(lapply(lapply(strsplit(apply(srga, 1, paste, collapse = "/"), "/"), tolower), match, strsplit(tolower(input$text), " |\n|\t|,")[[1]]))
+  lower_input <- reactive({
+    strsplit(tolower(input$text), " |\n|\t|,")[[1]]
+  })
+  
+  agi_index <- reactive({
+    grepl("at.g.+", lower_input(), ignore.case = T)
+  })
+  
+  key <- reactive({
+    c(gsub("\\..+", "", lower_input()[agi_index()]), lower_input()[!agi_index()])
+  })
+  
+  lap <- reactive(lapply(lapply(strsplit(apply(srga, 1, paste, collapse = "/"), "/"), tolower), match, key()[which(key() != "")]))
   
   observeEvent(input$button, {
     rv$df <- srga[which(lapply(lap(), any) == TRUE), ]
