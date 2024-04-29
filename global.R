@@ -25,7 +25,7 @@ overviewUI <- function(id) {
                    textAreaInput(ns("text"), h4("1. Input list of identifiers :"),
                                  width = "400px", height = "300px"
                    ),
-                   actionButton(ns("button"), "Submit",
+                   actionButton(ns("submit"), "Submit",
                                 style = "color: white; background-color: #337ab7; border-color: #2e6da4"),
                    actionButton(ns("example1"), "Example1"),
                    actionButton(ns("example2"), "Example2"),
@@ -47,6 +47,13 @@ overviewUI <- function(id) {
                    numericInput(ns("height"),
                                 label = "height :",
                                 value = 400),
+                   h5("Uncheck if dendrogram is not needed :"),
+                   checkboxInput(ns("dendro_row"),
+                                 label = "Row",
+                                 value = TRUE),
+                   checkboxInput(ns("dendro_col"),
+                                 label = "Column",
+                                 value = TRUE),
                    actionButton(ns("heatmap"), "Plot",
                                 style = "color: white; background-color: #337ab7; border-color: #2e6da4")
       ),
@@ -59,6 +66,8 @@ overviewUI <- function(id) {
 
 overview <- function(input, output, session, srga, cl, Breaks, Color) {
   output$atlas <- renderDataTable({
+    
+    # SRGAをヒートマップにして可視化
     datatable(
       srga,
       filter = "top",
@@ -78,38 +87,32 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
   
   rv  <- reactiveValues(df = NULL)
   
-  # ここの注意点としては、SYMBOLの区切り文字が予め"/"である必要がある。
+  # 入力文字列を全て小文字にして空白、改行、タブ、コンマのいずれかで分断する
   lower_input <- reactive({
     strsplit(tolower(input$text), " |\n|\t|,")[[1]]
   })
   
+  # 入力文字列に含まれるAGIコードの要素番号を取り出す
   agi_index <- reactive({
     grepl("at.g.+", lower_input(), ignore.case = T)
   })
   
+  # AGIコードにバージョン（ATXGXXXX.1など）がある場合は切り出す
   key <- reactive({
     c(gsub("\\..+", "", lower_input()[agi_index()]), lower_input()[!agi_index()])
   })
   
+  # SRGAに対して1行ずつ各要素を/で区切って1つの文字列にまとめる
+  # /で分断する
+  # 入力文字列と完全一致する要素を含む行を特定する
   lap <- reactive(lapply(lapply(strsplit(apply(srga, 1, paste, collapse = "/"), "/"), tolower), match, key()[which(key() != "")]))
   
-  observeEvent(input$button, {
+  # 特定した行のみをSRGAから取り出す
+  observeEvent(input$submit, {
     rv$df <- srga[which(lapply(lap(), any) == TRUE), ]
   })
   
-  observeEvent(input$remove, {
-    rv$df <- rv$df[-as.numeric(input$atlas_pick_rows_selected), ]
-  })
-  
-  observeEvent(input$example1, {
-    name <- paste("ADH1", "DREB1A", "ELIP1", "HSP17.8", "JAZ1", "NCED3", "PP2CA")
-    updateTextAreaInput(session, "text", value = name)
-  })
-  observeEvent(input$example2, {
-    name <- paste("DREB1A", "DREB1B", "DREB1C", "DREB2A", "DREB2B", "GolS1", "GolS2", "GolS3", sep = "\n")
-    updateTextAreaInput(session, "text", value = name)
-  })
-  
+  # 表示
   output$atlas_pick <- renderDataTable({
     datatable(
       rv$df,
@@ -127,6 +130,24 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
       formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
   }, server = TRUE)
   
+  # 選択した行を消去する
+  observeEvent(input$remove, {
+    rv$df <- rv$df[-as.numeric(input$atlas_pick_rows_selected), ]
+  })
+  
+  # 入力文字列例
+  # その１
+  observeEvent(input$example1, {
+    name <- paste("ADH1", "DREB1A", "ELIP1", "HSP17.8", "JAZ1", "NCED3", "PP2CA")
+    updateTextAreaInput(session, "text", value = name)
+  })
+  # その２
+  observeEvent(input$example2, {
+    name <- paste("DREB1A", "DREB1B", "DREB1C", "DREB2A", "DREB2B", "GolS1", "GolS2", "GolS3", sep = "\n")
+    updateTextAreaInput(session, "text", value = name)
+  })
+  
+  # ヒートマップ図
   heatmap_tbl <- reactive(
     heatmaply(Filter(is.numeric,
                      magrittr::set_rownames(rv$df, 
@@ -138,6 +159,8 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
                 high = "hotpink",
                 midpoint = 0
               ),
+              Rowv = input$dendro_row,
+              Colv = input$dendro_col,
               cellnote = Filter(is.numeric,
                                 magrittr::set_rownames(rv$df, 
                                                        value = rv$df[, input$name])),
@@ -145,6 +168,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
               cellnote_textposition = "middle center")
   )
   
+  # モーダルダイアログ内に表示
   output$plot <- renderPlotly({
     heatmap_tbl()
   })
