@@ -1,13 +1,17 @@
 shinyUI(
   navbarPage(
     "SRGA",
+    
+  ## ======================================================== ##
+  ## Menu : Microarray
+  ## ======================================================== ##
     navbarMenu(
       "Microarray",
+      ## ======================================== ##
+      ## Sub Menu : Atlas
+      ## ======================================== ##
       tabPanel(
         "Atlas",
-        actionButton("select", "", icon("circle-info"),
-                     style = "color: white; background-color: #337ab7; border-color: #2e6da4; position: absolute; right: 10px"
-                     ),
         tabsetPanel(type = "tabs",
                     tags$style(type = "text/css",
                                ".shiny-output-error { visibility: hidden; }",
@@ -25,20 +29,29 @@ shinyUI(
                     tabPanel("Oxidation", stressUI("oxidationm")),
                     tabPanel("Salt", stressUI("saltm")),
                     tabPanel("Wound", stressUI("woundm"))
-                    )
-        ),
+                    ) # tabsetPanel
+        ), # tabPanel(Atlas)
+      ## ======================================== ##
+      ## Sub Menu : Template Matching
+      ## ======================================== ##
       tabPanel("Template matching",
                TemplateMatchUI("microarray")),
+      ## ======================================== ##
+      ## Sub Menu : Unknown
+      ## ======================================== ##
       tabPanel("Unknown", 
                UnknownUI("microarray"))
       ),
+  ## ======================================================== ##
+  ## Menu : RNA-Seq 
+  ## ======================================================== ##
     navbarMenu(
       "RNA-Seq",
+      ## ======================================== ##
+      ## Sub Menu : Atlas
+      ## ======================================== ##
       tabPanel(
         "Atlas",
-        actionButton("select", "", icon("circle-info"),
-                     style = "color: white; background-color: #337ab7; border-color: #2e6da4; position: absolute; right: 10px"
-                     ),
         tabsetPanel(type = "tabs",
                     tags$style(type = "text/css",
                                ".shiny-output-error { visibility: hidden; }",
@@ -56,10 +69,17 @@ shinyUI(
                     tabPanel("Oxidation", stressUI("oxidationr")),
                     tabPanel("Salt", stressUI("saltr")),
                     tabPanel("Wound", stressUI("woundr"))
-                    )
-                        ),
-                        tabPanel("Template matching", TemplateMatchUI("rnaseq")),
-                        tabPanel("Unknown", UnknownUI("rnaseq"))
-                        )
-             )
-  )
+                    ) # tabsetPanel
+        ), # tabPanel (Atlas)
+      ## ======================================== ##
+      ## Sub Menu :Template Matching
+      ## ======================================== ##
+      tabPanel("Template matching", TemplateMatchUI("rnaseq")),
+      ## ======================================== ##
+      ## Sub Menu : Unknown
+      ## ======================================== ##
+      tabPanel("Unknown", UnknownUI("rnaseq"))
+      ) # navbarMenu
+
+    ) # navbarPage
+  ) # ShinyUI

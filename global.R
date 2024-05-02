@@ -1,16 +1,18 @@
 RPackages <- c("shiny", "dplyr", "tibble", "ggplot2", "DT", "withr", "targets", "htmlwidgets", "plotly", "heatmaply") 
-newPackages <- RPackages[!(RPackages %in% installed.packages()[,"Package"])]
+newPackages <- RPackages[!(RPackages %in% installed.packages()[, "Package"])]
 if(length(newPackages)) install.packages(newPackages)
 for(package in RPackages) library(package, character.only = TRUE)
 
 BCPackages <- c("genefilter")
-newPackages <- BCPackages[!(BCPackages %in% installed.packages()[,"Package"])]
+newPackages <- BCPackages[!(BCPackages %in% installed.packages()[, "Package"])]
 if(length(newPackages)) BiocManager::install(newPackages)
 for(package in BCPackages) library(package, character.only = TRUE)
 
 source("data_processing.R", local = TRUE)
 
-# ATlas ############################################################################
+# Sub Menu : Atlas ####
+
+## Tab : Overview ####
 
 overviewUI <- function(id) {
   ns <- NS(id)
@@ -39,7 +41,7 @@ overviewUI <- function(id) {
                    br(),
                    br(),
                    h4("2. Control paremeters of heatmap"),
-                   selectInput(ns("name"),
+                   selectInput(ns("identifier"),
                                label = "Choose y axis :",
                                choices = c("ensembl_gene_id",
                                            "SYMBOL"),
@@ -65,9 +67,11 @@ overviewUI <- function(id) {
 }
 
 overview <- function(input, output, session, srga, cl, Breaks, Color) {
+  
+  ##　Table Display : SRGA (Stress Response Gene Atlas) ####
   output$atlas <- renderDataTable({
     
-    # SRGAをヒートマップにして可視化
+    ### SRGAをヒートマップにして表示 ####
     datatable(
       srga,
       filter = "top",
@@ -85,34 +89,31 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
       formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
   }, server = TRUE)
   
+  ## Side Bar : Bulk Search → Heatmap ####
   rv  <- reactiveValues(df = NULL)
   
-  # 入力文字列を全て小文字にして空白、改行、タブ、コンマのいずれかで分断する
+  ### 入力文字列の小文字変換および区切り文字分割（スペース or 改行 or タブ or コンマ）####
   lower_input <- reactive({
     strsplit(tolower(input$text), " |\n|\t|,")[[1]]
   })
   
-  # 入力文字列に含まれるAGIコードの要素番号を取り出す
+  ### AGIコードの要素番号を取得 ####
   agi_index <- reactive({
     grepl("at.g.+", lower_input(), ignore.case = T)
   })
   
-  # AGIコードにバージョン（ATXGXXXX.1など）がある場合は切り出す
+  ### AGIコードのバージョン部分（例：ATXGXXXX.1）を消去 ####
   key <- reactive({
     c(gsub("\\..+", "", lower_input()[agi_index()]), lower_input()[!agi_index()])
   })
   
-  # SRGAに対して1行ずつ各要素を/で区切って1つの文字列にまとめる
-  # /で分断する
-  # 入力文字列と完全一致する要素を含む行を特定する
+  ### SRGAから入力文字列と完全一致する要素を含む行を取得 ####
   lap <- reactive(lapply(lapply(strsplit(apply(srga, 1, paste, collapse = "/"), "/"), tolower), match, key()[which(key() != "")]))
-  
-  # 特定した行のみをSRGAから取り出す
   observeEvent(input$submit, {
     rv$df <- srga[which(lapply(lap(), any) == TRUE), ]
   })
   
-  # 表示
+  ### 取得行の表示 ####
   output$atlas_pick <- renderDataTable({
     datatable(
       rv$df,
@@ -130,24 +131,24 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
       formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
   }, server = TRUE)
   
-  # 選択した行を消去する
+  ### 選択した行の消去 ####
   observeEvent(input$remove, {
     rv$df <- rv$df[-as.numeric(input$atlas_pick_rows_selected), ]
   })
   
-  # 入力文字列例
-  # その１
+  ### 入力文字列の例 ####
+  #### その１ ####
   observeEvent(input$example1, {
     name <- paste("ADH1", "DREB1A", "ELIP1", "HSP17.8", "JAZ1", "NCED3", "PP2CA")
     updateTextAreaInput(session, "text", value = name)
   })
-  # その２
+  #### その２ ####
   observeEvent(input$example2, {
     name <- paste("DREB1A", "DREB1B", "DREB1C", "DREB2A", "DREB2B", "GolS1", "GolS2", "GolS3", sep = "\n")
     updateTextAreaInput(session, "text", value = name)
   })
   
-  # ヒートマップ図
+  ### ヒートマップ図の描画 ####
   heatmap_tbl <- reactive(
     heatmaply(Filter(is.numeric,
                      magrittr::set_rownames(rv$df, 
@@ -168,13 +169,11 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
               cellnote_textposition = "middle center")
   )
   
-  # モーダルダイアログ内に表示
+  ### ヒートマップ図をモーダルダイアログ内に表示 ####
   output$plot <- renderPlotly({
     heatmap_tbl()
   })
-  
   ns <- session$ns
-  
   observeEvent(input$heatmap, {
     showModal(modalDialog({
       plotlyOutput(ns("plot"))},
@@ -186,6 +185,8 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
   
   return(reactive(input$atlas_rows_selected))
 }
+
+## Tab : Abiotic and biotic stress ####
 
 stressUI <- function(id) {
   ns <- NS(id)
@@ -209,21 +210,24 @@ stressUI <- function(id) {
                  style = "color: skyblue; background-color: white; border-color: #2e6da4"),
     br(),
     dataTableOutput(ns("metadata"))
-  )
+    )
 }
 
 stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
+  ## Table Display : SRratio ####
   
+  ### 指定した遺伝子のSRratioを取得 (改善点あり) ####
   selectedRatio <- reactive({
     ratio[which(ratio$ensembl_gene_id %in% srga$ensembl_gene_id[selectedRow()]), ]
   })
   
   rv <- reactiveValues(ratio = NULL, metadata = NULL)
-  
+
   observeEvent(input$button_ratio, {
     rv$ratio <- ratio[which(ratio$ensembl_gene_id %in% srga$ensembl_gene_id[selectedRow()]), ]
   })
   
+  ### SRratioの表示 ####
   output$ratio <- renderDataTable({
     datatable(rv$ratio,
               extensions = "FixedColumns",
@@ -233,18 +237,23 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
       formatStyle(colnames(selectedRatio())[-1], backgroundColor = styleInterval(c(-2, 2), c("skyblue", "white", "pink")))
   })
   
+  ### SRratio ≧ 2のストレス処理サンプルを特定 (1) ####
   more <- reactive({
     which(metadata$treated_sample %in% colnames(rv$ratio)[rv$ratio >= 2])
   })
   
+  ### -2 < SRratio < 2のストレス処理サンプルを特定 ####
   middle <- reactive({
     which(metadata$treated_sample %in% colnames(rv$ratio)[-2 <= rv$ratio & rv$ratio <= 2])
   })
   
+  ### SRratio ≦ -2のストレス処理サンプルを特定 (2) ####
   less <- reactive({
     which(metadata$treated_sample %in% colnames(rv$ratio)[rv$ratio <= -2])
   })
   
+  ## Table Display : Metadata ####
+  ### メタデータの色分け(1 → pink、2 → skyblue) ####
   observeEvent(input$button_metadata, {
     rv$metadata <- datatable(
       metadata,
@@ -266,6 +275,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
       )
   })
   
+  ### SRratio ≧ 2のストレス処理サンプルのみを含むメタデータの取得 ####
   observeEvent(input$button_metadata_more, {
     rv$metadata <- datatable(
       metadata[more(), ],
@@ -280,6 +290,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     )
   })
   
+  ### -2 < SRratio < 2のストレス処理サンプルのみを含むメタデータの取得 ####
   observeEvent(input$button_metadata_middle, {
     rv$metadata <- datatable(
       metadata[middle(), ],
@@ -294,6 +305,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     )
   })
   
+  ### SRratio ≦ -2のストレス処理サンプルのみを含むメタデータの取得 ####
   observeEvent(input$button_metadata_less, {
     rv$metadata <- datatable(
       metadata[less(), ],
@@ -308,13 +320,13 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     )
   })
   
+  ### メタデータの表示 ####
   output$metadata <- renderDataTable({
     rv$metadata
   }, server = FALSE)
 }
 
-# TemplateMatch ################################################
-
+# Sub Menu : Template Matching ####
 TemplateMatchUI <- function(id) {
   ns <- NS(id)
   
@@ -331,7 +343,7 @@ TemplateMatchUI <- function(id) {
                                 label = "Number of results to display :",
                                 value = 5),
                    h4("2. Control paremeters of heatmap"),
-                   selectInput(ns("name"),
+                   selectInput(ns("identifier"),
                                label = "Choose y axis :",
                                choices = c("ensembl_gene_id",
                                            "SYMBOL"),
@@ -350,11 +362,17 @@ TemplateMatchUI <- function(id) {
   )
 }
 
+
 TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Breaks, Color) {
-  close_genes <- reactive({genefinder(query,
-                                      selectRow(),
-                                      input$display,
-                                      method = input$method)})
+  ## Table Display : Template Matching results ####
+  ### SRGAからテンプレートマッチングで検出した行を取得 ####
+  close_genes <- reactive({
+    genefinder(query,
+               selectRow(),
+               input$display,
+               method = input$method)})
+  
+  ### 取得行の表示 ####
   output$close_genes <- renderDataTable({
     datatable(
       add_column(srga[close_genes()[[1]]$indices, ], 
@@ -378,7 +396,7 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
   },
   server = FALSE)
   
-  ## show datatable for selected gene ####
+  ### SRGAでユーザが選択した行を表示 ####
   output$selected <- renderDataTable({
     datatable(
       srga[selectRow(), ],
@@ -392,6 +410,9 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
       formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
   })
   
+  ## Side Bar : Template Matching → Heatmap ####
+  
+  ### ヒートマップ図の描画 ####
   heatmap_tbl <- reactive(
     heatmaply(Filter(is.numeric,
                      magrittr::set_rownames(srga[close_genes()[[1]]$indices, ], 
@@ -407,12 +428,11 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
               Colv = FALSE)
   )
   
+  ### ヒートマップ図をモーダルダイアログ内に表示 ####
   output$plot <- renderPlotly({
     heatmap_tbl()
   })
-  
   ns <- session$ns
-  
   observeEvent(input$heatmap, {
     showModal(modalDialog({
       plotlyOutput(ns("plot"))},
@@ -423,7 +443,7 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
   })
 }
 
-# Unknown ################################################
+# Sub Menu : Unknown ####
 UnknownUI <- function(id) {
   ns <- NS(id)
   tagList(
