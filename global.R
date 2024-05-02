@@ -1,19 +1,34 @@
-RPackages <- c("shiny", "dplyr", "tibble", "ggplot2", "DT", "withr", "targets", "htmlwidgets", "plotly", "heatmaply") 
+# Installation
+RPackages <- c("shiny", "dplyr", "tibble", "ggplot2", "DT", "withr", "targets", "htmlwidgets", "plotly", "heatmaply", "magrittr") 
 newPackages <- RPackages[!(RPackages %in% installed.packages()[, "Package"])]
-if(length(newPackages)) install.packages(newPackages)
-for(package in RPackages) library(package, character.only = TRUE)
+if (length(newPackages)) {
+  install.packages(newPackages)
+}
+for (package in RPackages) {
+  library(package, character.only = TRUE)
+}
 
 BCPackages <- c("genefilter")
 newPackages <- BCPackages[!(BCPackages %in% installed.packages()[, "Package"])]
-if(length(newPackages)) BiocManager::install(newPackages)
-for(package in BCPackages) library(package, character.only = TRUE)
+if (length(newPackages)) {
+  
+  if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+  
+  BiocManager::install(newPackages)
+}
+for (package in BCPackages) {
+  library(package, character.only = TRUE)
+}
 
+# Source scripts
 source("data_processing.R", local = TRUE)
 
+
+
+
 # Sub Menu : Atlas ####
-
 ## Tab : Overview ####
-
 overviewUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -67,11 +82,9 @@ overviewUI <- function(id) {
 }
 
 overview <- function(input, output, session, srga, cl, Breaks, Color) {
-  
   ##　Table Display : SRGA (Stress Response Gene Atlas) ####
+  ### SRGAをヒートマップにして表示 ####
   output$atlas <- renderDataTable({
-    
-    ### SRGAをヒートマップにして表示 ####
     datatable(
       srga,
       filter = "top",
@@ -151,8 +164,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
   ### ヒートマップ図の描画 ####
   heatmap_tbl <- reactive(
     heatmaply(Filter(is.numeric,
-                     magrittr::set_rownames(rv$df, 
-                                            value = rv$df[, input$name])),
+                     set_rownames(rv$df, value = rv$df[, input$name])),
               height = input$height,
               grid_gap = 0.2, grid_color = "gray90",
               scale_fill_gradient_fun = scale_fill_gradient2(
@@ -163,8 +175,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
               Rowv = input$dendro_row,
               Colv = input$dendro_col,
               cellnote = Filter(is.numeric,
-                                magrittr::set_rownames(rv$df, 
-                                                       value = rv$df[, input$name])),
+                                set_rownames(rv$df, value = rv$df[, input$name])),
               cellnote_size = 18,
               cellnote_textposition = "middle center")
   )
@@ -187,7 +198,6 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
 }
 
 ## Tab : Abiotic and biotic stress ####
-
 stressUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -215,7 +225,6 @@ stressUI <- function(id) {
 
 stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
   ## Table Display : SRratio ####
-  
   ### 指定した遺伝子のSRratioを取得 (改善点あり) ####
   selectedRatio <- reactive({
     ratio[which(ratio$ensembl_gene_id %in% srga$ensembl_gene_id[selectedRow()]), ]
@@ -326,6 +335,9 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
   }, server = FALSE)
 }
 
+
+
+
 # Sub Menu : Template Matching ####
 TemplateMatchUI <- function(id) {
   ns <- NS(id)
@@ -411,12 +423,11 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
   })
   
   ## Side Bar : Template Matching → Heatmap ####
-  
   ### ヒートマップ図の描画 ####
   heatmap_tbl <- reactive(
     heatmaply(Filter(is.numeric,
-                     magrittr::set_rownames(srga[close_genes()[[1]]$indices, ], 
-                                            value = srga[close_genes()[[1]]$indices, input$name])),
+                     set_rownames(srga[close_genes()[[1]]$indices, ], 
+                                  value = srga[close_genes()[[1]]$indices, input$name])),
               height = input$height,
               grid_gap = 0.2, grid_color = "gray90",
               scale_fill_gradient_fun = scale_fill_gradient2(
@@ -442,6 +453,9 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
     )
   })
 }
+
+
+
 
 # Sub Menu : Unknown ####
 UnknownUI <- function(id) {
