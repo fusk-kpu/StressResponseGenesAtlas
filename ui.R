@@ -1,6 +1,11 @@
 shinyUI(
   navbarPage(
-    "SRGA",
+    "AtSRGA",
+    tags$style(type = "text/css",
+               ".shiny-output-error { visibility: hidden; }",
+               ".shiny-output-error:before { visibility: hidden; }"
+    ),
+    inverse = TRUE,
     
   ## ======================================================== ##
   ## Menu : Microarray
@@ -13,10 +18,6 @@ shinyUI(
       tabPanel(
         "Atlas",
         tabsetPanel(type = "tabs",
-                    tags$style(type = "text/css",
-                               ".shiny-output-error { visibility: hidden; }",
-                               ".shiny-output-error:before { visibility: hidden; }"
-                               ),
                     tabPanel("Overview", overviewUI("SRscore_microarray")),
                     tabPanel("ABA", stressUI("ABAm")),
                     tabPanel("Cold", stressUI("coldm")),
@@ -35,12 +36,7 @@ shinyUI(
       ## Sub Menu : Template Matching
       ## ======================================== ##
       tabPanel("Template matching",
-               TemplateMatchUI("microarray")),
-      ## ======================================== ##
-      ## Sub Menu : Unknown
-      ## ======================================== ##
-      tabPanel("Unknown", 
-               UnknownUI("microarray"))
+               TemplateMatchUI("microarray"))
       ),
   ## ======================================================== ##
   ## Menu : RNA-Seq 
@@ -74,11 +70,7 @@ shinyUI(
       ## ======================================== ##
       ## Sub Menu :Template Matching
       ## ======================================== ##
-      tabPanel("Template matching", TemplateMatchUI("rnaseq")),
-      ## ======================================== ##
-      ## Sub Menu : Unknown
-      ## ======================================== ##
-      tabPanel("Unknown", UnknownUI("rnaseq"))
+      tabPanel("Template matching", TemplateMatchUI("rnaseq"))
       ) # navbarMenu
 
     ) # navbarPage

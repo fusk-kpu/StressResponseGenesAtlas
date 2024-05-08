@@ -19,39 +19,39 @@ link <- rep("link", nrow(SRscore_microarray))
 # AlphaFold2
 url <- rep(paste0("https://alphafold.ebi.ac.uk/search/text/",
                   SRscore_microarray$ensembl_gene_id))
-AF2 <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+AF2 <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # ATTED-II
 url <- rep(paste0("https://atted.jp/kwsearch/?stype=any&kword=", 
                   SRscore_microarray$ensembl_gene_id, 
                   "&searchBtnK.x=0&searchBtnK.y=0"))
-ATTED2 <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+ATTED2 <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # eFP Browser
 url <- rep(paste0("https://bar.utoronto.ca/efp/cgi-bin/efpWeb.cgi?dataSource=Abiotic_Stress&mode=Absolute&primaryGene=",
                   SRscore_microarray$ensembl_gene_id))
-eFP <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+eFP <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # KEGG
 url <- rep(paste0("https://www.genome.jp/dbget-bin/www_bget?ath:", SRscore_microarray$ensembl_gene_id))
-KEGG <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+KEGG <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # STRING
 url <- rep(paste0("https://string-db.org/cgi/network?identifiers=",
                   SRscore_microarray$ensembl_gene_id,
                   "&species=3702&show_query_node_labels=1"))
-STRING <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+STRING <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # TAIR
 url <- rep(paste0("https://www-arabidopsis-org.translate.goog/servlets/TairObject?type=locus&name=", 
                   SRscore_microarray$ensembl_gene_id, 
                   "&_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja&_x_tr_pto=sc"))
-TAIR <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+TAIR <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # ThaleMine
 url <- rep(paste0("https://bar.utoronto.ca/thalemine/keywordSearchResults.do?searchTerm=",
                   SRscore_microarray$ensembl_gene_id, "&searchSubmit=GO"))
-TM <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+TM <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # それぞれのリンクをアトラスに結合 
 SRscore_microarray <- cbind(SRscore_microarray, "AlphaFold2" = AF2, "ATTED-II" = ATTED2, "eFP Browser" = eFP, 
@@ -111,39 +111,39 @@ link <- rep("link", nrow(SRscore_rnaseq))
 # AlphaFold2
 url <- rep(paste0("https://alphafold.ebi.ac.uk/search/text/",
                   SRscore_rnaseq$ensembl_gene_id))
-AF2 <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+AF2 <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # ATTED-II
 url <- rep(paste0("https://atted.jp/kwsearch/?stype=any&kword=", 
                   SRscore_rnaseq$ensembl_gene_id, 
                   "&searchBtnK.x=0&searchBtnK.y=0"))
-ATTED2 <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+ATTED2 <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # eFP Browser
 url <- rep(paste0("https://bar.utoronto.ca/efp/cgi-bin/efpWeb.cgi?dataSource=Abiotic_Stress&mode=Absolute&primaryGene=",
                   SRscore_rnaseq$ensembl_gene_id))
-eFP <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+eFP <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # KEGG
 url <- rep(paste0("https://www.genome.jp/dbget-bin/www_bget?ath:", SRscore_rnaseq$ensembl_gene_id))
-KEGG <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+KEGG <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # STRING
 url <- rep(paste0("https://string-db.org/cgi/network?identifiers=",
                   SRscore_rnaseq$ensembl_gene_id,
                   "&species=3702&show_query_node_labels=1"))
-STRING <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+STRING <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # TAIR
 url <- rep(paste0("https://www-arabidopsis-org.translate.goog/servlets/TairObject?type=locus&name=", 
                   SRscore_rnaseq$ensembl_gene_id, 
                   "&_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja&_x_tr_pto=sc"))
-TAIR <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+TAIR <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # ThaleMine
 url <- rep(paste0("https://bar.utoronto.ca/thalemine/keywordSearchResults.do?searchTerm=",
                   SRscore_rnaseq$ensembl_gene_id, "&searchSubmit=GO"))
-TM <- paste0("<a href = ", "'", url, "'", ">", url, "</a>")
+TM <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
 
 # 各リンクをアトラスへ結合 
 SRscore_rnaseq <- cbind(SRscore_rnaseq, "AlphaFold2" = AF2, "ATTED-II" = ATTED2, "eFP Browser" = eFP,
