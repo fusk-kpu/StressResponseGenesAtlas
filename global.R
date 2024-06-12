@@ -1,5 +1,8 @@
 # Installation
 library("shiny")
+library("shinydashboard")
+library("shinyWidgets")
+library("shinyFiles")
 library("dplyr")
 library("tibble")
 library("ggplot2")
@@ -9,13 +12,14 @@ library("targets")
 library("htmlwidgets")
 library("plotly")
 library("heatmaply")
-library("magrittr") 
+library("magrittr")
 library("genefilter")
+library("gprofiler2")
+library("openxlsx")
 
 # Source scripts
+# source("proxy.R", local = TRUE)
 source("data_processing.R", local = TRUE)
-
-
 
 
 # Sub Menu : Atlas ####
@@ -23,6 +27,9 @@ source("data_processing.R", local = TRUE)
 overviewUI <- function(id) {
   ns <- NS(id)
   tagList(
+    actionButton(ns("reset"), "Reset Table"),
+    actionButton(ns("remove"), "Remove",
+                 style = "color: red"),
     br(),
     br(),
     dataTableOutput(ns("atlas")),
@@ -42,8 +49,6 @@ overviewUI <- function(id) {
                    "1. Select rows in the table to the right.",
                    br(),
                    "2. Click this button :",
-                   actionButton(ns("remove"), "Remove",
-                                style = "color: red"),
                    br(),
                    br(),
                    h4("2. Control paremeters of heatmap"),
@@ -59,7 +64,7 @@ overviewUI <- function(id) {
                                 style = "color: white; background-color: #337ab7; border-color: #2e6da4")
       ),
       mainPanel(
-        dataTableOutput(ns("atlas_pick"))
+        dataTableOutput(ns("bulk"))
       )
     )
   )
@@ -67,102 +72,90 @@ overviewUI <- function(id) {
 
 overview <- function(input, output, session, srga, cl, Breaks, Color) {
   ##　Table Display : SRGA (Stress Response Gene Atlas) ####
-  ### SRGAをヒートマップにして表示 ####
+  ### Display the atlas as a heatmap ####
+  rv  <- reactiveValues(df = NULL)
+  rv$df <- srga
+  observeEvent(input$reset, {
+    rv$df <- srga
+  })
   output$atlas <- renderDataTable({
     datatable(
-      srga,
+      rv$df,
       filter = "top",
       selection = "single",
-      extensions = "FixedColumns",
-      rownames = FALSE,
+      extensions = c("Buttons", "FixedColumns"),
       escape = FALSE,
-      options = list(columnDefs = list(list(className = "dt-nowrap", targets = "_all")),
+      rownames = FALSE,
+      options = list(columnDefs = list(list(className = "dt-nowrap", targets = "_all"),
+                                       list(visible = FALSE, targets = NULL)),
                      scrollX = TRUE, 
                      fixedColumns = TRUE,
-                     dom = "lrtBip", buttons = list(list(extend = "collection",
-                                                          buttons = list(list(extend = "csv", filename = "SRGA"),
-                                                                         list(extend = "excel", filename = "SRGA")),
-                                                          text = "Download"))
+                     dom = "lrtBip",
+                     buttons = list(
+                       I("colvis"),
+                       list(extend = "collection",
+                            buttons = list(list(extend = "csv", filename = "SRGA"),
+                                           list(extend = "excel", filename = "SRGA")
+                            ),
+                            text = "Download"))
       )
     ) %>%
       formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
   }, server = TRUE)
   
   ## Side Bar : Bulk Search → Heatmap ####
-  rv  <- reactiveValues(df = NULL)
-  
-  ### 入力文字列に対して ####
-  #### 小文字変換および区切り文字分割（スペース or 改行 or タブ or コンマ）####
+  ### Input string ####
+  #### Lowercase conversion and delimiter splitting（Space or New Line or Tab or commma）####
   lower_input <- reactive({
     strsplit(tolower(input$text), " |\n|\t|,")[[1]]
   })
   
-  #### AGIコードの要素番号を取得 ####
+  #### Get index of AGI code ####
   agi_index <- reactive({
     grepl("at.g.+", lower_input(), ignore.case = T)
   })
   
-  #### AGIコードのバージョン部分（例：ATXGXXXX.1）を消去 ####
+  #### Delete Version Part of AGI Code（e.g., ATXGXXXX.1, ATXGXXXXX.3） ####
   key <- reactive({
     c(gsub("\\..+", "", lower_input()[agi_index()]), lower_input()[!agi_index()])
   })
   
-  ### SRGAに対して ####
-  #### AGIコードおよびSYMBOLを行ごとに抽出し、"/"を間に入れて結合する
+  ### SRGA ####
+  #### Extract AGI code and SYMBOL for each line
   AGIandSYMBOL <- reactive(apply(srga[c("ensembl_gene_id", "SYMBOL")], 1, paste, collapse = "/"))
   
-  #### "/"で区切る ####
+  #### Divide with a slash ####
   splited_AGIandSYMBOL <- reactive(strsplit(AGIandSYMBOL(), "/"))
   
-  #### 小文字に変換する ####
+  #### Convert to lowcase ####
   lowered_AGIandSYMBOL <- reactive(lapply(splited_AGIandSYMBOL(), tolower))
   
-  #### 入力文字列と完全一致する要素の番号を取得する ####
+  #### Get the index of the element that exactly matches the input string ####
   matched_AGIandSYMBOL <- reactive(lapply(lowered_AGIandSYMBOL(), match, key()[which(key() != "")]))
   
-  ### SRGAから番号に対応する行を取得 ####
+  ### Retrieve the row corresponding to the number from SRGA ####
   observeEvent(input$submit, {
     rv$df <- srga[which(lapply(matched_AGIandSYMBOL(), any) == TRUE), ]
   })
   
-  ### 取得行の表示 ####
-  output$atlas_pick <- renderDataTable({
-    datatable(
-      rv$df,
-      filter = "top",
-      extensions = "FixedColumns",
-      rownames = FALSE,
-      escape = FALSE,
-      options = list(columnDefs = list(list(className = "dt-nowrap", targets = "_all")),
-                     scrollX = TRUE, 
-                     fixedColumns = TRUE,
-                     dom = "lrtBip", buttons = list(list(extend = "collection",
-                                                          buttons = list(list(extend = "csv", filename = "SRGA"),
-                                                                         list(extend = "excel", filename = "SRGA")),
-                                                          text = "Download"))
-      )
-    ) %>%
-      formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
-  }, server = TRUE)
-  
-  ### 選択した行の消去 ####
+  ### Remove line ####
   observeEvent(input$remove, {
-    rv$df <- rv$df[-as.numeric(input$atlas_pick_rows_selected), ]
+    rv$df <- rv$df[-as.numeric(input$atlas_rows_selected), ]
   })
   
-  ### 入力文字列の例 ####
-  #### その１ ####
+  ### Example of input string ####
+  #### First ####
   observeEvent(input$example1, {
     name <- paste("ADH1", "DREB1A", "ELIP1", "HSP17.8", "JAZ1", "NCED3", "PP2CA")
     updateTextAreaInput(session, "text", value = name)
   })
-  #### その２ ####
+  #### Second ####
   observeEvent(input$example2, {
     name <- paste("DREB1A", "DREB1B", "DREB1C", "DREB2A", "DREB2B", "GolS1", "GolS2", "GolS3", sep = "\n")
     updateTextAreaInput(session, "text", value = name)
   })
   
-  ### ヒートマップ図の描画 ####
+  ### Create heatmap ####
   heatmap_tbl <- reactive(
     heatmaply(Filter(is.numeric,
                      set_rownames(rv$df, value = rv$df[, input$identifier])),
@@ -181,7 +174,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
               cellnote_textposition = "middle center")
   )
   
-  ### ヒートマップ図をモーダルダイアログ内に表示 ####
+  ### Display a heatmap inside the modal dialog box ####
   output$plot <- renderPlotly({
     heatmap_tbl()
   })
@@ -194,8 +187,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
       title = "Heatmap"))
   })
   
-  
-  return(reactive(input$atlas_rows_selected))
+  return(reactive(rv$df$ensembl_gene_id[input$atlas_rows_selected]))
 }
 
 ## Tab : Abiotic and biotic stress ####
@@ -203,6 +195,7 @@ stressUI <- function(id) {
   ns <- NS(id)
   tagList(
     br(),
+    verbatimTextOutput(ns("test")),
     actionButton(ns("button_ratio"), "Show SRratio", icon("table"),
                  style = "color: white; background-color: #337ab7; border-color: #2e6da4"),
     br(),
@@ -221,49 +214,50 @@ stressUI <- function(id) {
                  style = "color: skyblue; background-color: white; border-color: #2e6da4"),
     br(),
     dataTableOutput(ns("metadata"))
-    )
+  )
 }
 
 stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
   ## Table Display : SRratio ####
-  ### 指定した遺伝子のSRratioを取得 (改善点あり) ####
+  ### Retrieve the SR ratio of the specified gene (改善点あり) ####
   selectedRatio <- reactive({
-    ratio[which(ratio$ensembl_gene_id %in% srga$ensembl_gene_id[selectedRow()]), ]
+    ratio[which(ratio$ensembl_gene_id %in% selectedRow()), ]
   })
   
   rv <- reactiveValues(ratio = NULL, metadata = NULL)
-
+  
   observeEvent(input$button_ratio, {
-    rv$ratio <- ratio[which(ratio$ensembl_gene_id %in% srga$ensembl_gene_id[selectedRow()]), ]
+    rv$ratio <- ratio[which(ratio$ensembl_gene_id %in% selectedRow()), ]
   })
   
-  ### SRratioの表示 ####
+  ### Display SRratio ####
   output$ratio <- renderDataTable({
     datatable(rv$ratio,
-              extensions = "FixedColumns",
+              extensions = c("Buttons", "FixedColumns"),
               rownames = FALSE,
               selection = "single",
               options = list(scrollX =TRUE, fixedColumns = TRUE)) %>%
       formatStyle(colnames(selectedRatio())[-1], backgroundColor = styleInterval(c(-2, 2), c("skyblue", "white", "pink")))
   })
   
-  ### SRratio ≧ 2のストレス処理サンプルを特定 (1) ####
+  ### Identify the. treated samples that meet the following criteria ####
+  #### SRratio ≧ 2 (1) ####
   more <- reactive({
     which(metadata$treated_sample %in% colnames(rv$ratio)[rv$ratio >= 2])
   })
   
-  ### -2 < SRratio < 2のストレス処理サンプルを特定 ####
+  #### -2 < SRratio < 2 ####
   middle <- reactive({
     which(metadata$treated_sample %in% colnames(rv$ratio)[-2 <= rv$ratio & rv$ratio <= 2])
   })
   
-  ### SRratio ≦ -2のストレス処理サンプルを特定 (2) ####
+  #### SRratio ≦ -2 (2) ####
   less <- reactive({
     which(metadata$treated_sample %in% colnames(rv$ratio)[rv$ratio <= -2])
   })
   
   ## Table Display : Metadata ####
-  ### メタデータの色分け(1 → pink、2 → skyblue) ####
+  ### Color metadata (1 → pink、2 → skyblue) ####
   observeEvent(input$button_metadata, {
     rv$metadata <- datatable(
       metadata,
@@ -274,8 +268,8 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
                      columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      dom = 'flrtBip', 
                      buttons = list(list(extend = 'collection',
-                                         buttons = list(list(extend = 'csv', filename = 'SRGA'),
-                                                        list(extend = 'excel', filename = 'SRGA')),
+                                         buttons = list(list(extend = 'csv', filename = 'Metadata'),
+                                                        list(extend = 'excel', filename = 'Metadata')),
                                          text = 'Download')))) %>% 
       formatStyle(
         "treated_sample", 
@@ -294,8 +288,8 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      dom = 'flrtBip', 
                      buttons = list(list(extend = 'collection',
-                                         buttons = list(list(extend = 'csv', filename = 'SRGA'),
-                                                        list(extend = 'excel', filename = 'SRGA')),
+                                         buttons = list(list(extend = 'csv', filename = 'Metadata_detected_up'),
+                                                        list(extend = 'excel', filename = 'Metadata_detected_up')),
                                          text = 'Download')))
     )
   })
@@ -309,8 +303,8 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      dom = 'flrtBip', 
                      buttons = list(list(extend = 'collection',
-                                         buttons = list(list(extend = 'csv', filename = 'SRGA'),
-                                                        list(extend = 'excel', filename = 'SRGA')),
+                                         buttons = list(list(extend = 'csv', filename = 'Metadata_not_detected'),
+                                                        list(extend = 'excel', filename = 'Metadata_not_detected')),
                                          text = 'Download')))
     )
   })
@@ -324,13 +318,13 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      dom = 'flrtBip', 
                      buttons = list(list(extend = 'collection',
-                                         buttons = list(list(extend = 'csv', filename = 'SRGA'),
-                                                        list(extend = 'excel', filename = 'SRGA')),
+                                         buttons = list(list(extend = 'csv', filename = 'Metadata_detected_down'),
+                                                        list(extend = 'excel', filename = 'Metadata_detected_down')),
                                          text = 'Download')))
     )
   })
   
-  ### メタデータの表示 ####
+  ### Display metadata ####
   output$metadata <- renderDataTable({
     rv$metadata
   }, server = FALSE)
@@ -378,14 +372,14 @@ TemplateMatchUI <- function(id) {
 
 TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Breaks, Color) {
   ## Table Display : Template Matching results ####
-  ### SRGAからテンプレートマッチングで検出した行を取得 ####
+  ### Template matching ####
   close_genes <- reactive({
     genefinder(query,
                selectRow(),
                input$display,
                method = input$method)})
   
-  ### 取得行の表示 ####
+  ### Display matching result ####
   output$close_genes <- renderDataTable({
     datatable(
       add_column(srga[close_genes()[[1]]$indices, ], 
@@ -394,45 +388,45 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
       ),
       filter = "top",
       selection = "single",
-      extensions = "FixedColumns",
+      extensions = c("Buttons", "FixedColumns"),
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      scrollX = TRUE, fixedColumns = TRUE,
                      dom = 'lrtBip', buttons = list(list(extend = 'collection',
-                                                          buttons = list(list(extend = 'csv', filename = 'closegenes'),
-                                                                         list(extend = 'excel', filename = 'closegenes')),
-                                                          text = 'Download'))
-                     ),
+                                                         buttons = list(list(extend = 'csv', filename = 'closegenes'),
+                                                                        list(extend = 'excel', filename = 'closegenes')),
+                                                         text = 'Download'))
+      ),
       escape = FALSE, rownames = FALSE
-      ) %>%
+    ) %>%
       formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color)) %>%
       formatStyle("dists", backgroundColor = "yellow")
   },
   server = FALSE)
   
-  ### ユーザ選択行の表示 ####
+  ### Display template ####
   output$selected <- renderDataTable({
     datatable(
       srga[selectRow(), ],
       filter = "top",
-      extensions = "FixedColumns",
+      extensions = c("Buttons", "FixedColumns"),
       selection = "single",
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      scrollX = TRUE, 
                      fixedColumns = TRUE,
                      dom = 'lrtBip', buttons = list(list(extend = 'collection',
-                                                         buttons = list(list(extend = 'csv', filename = 'closegenes'),
-                                                                        list(extend = 'excel', filename = 'closegenes')),
+                                                         buttons = list(list(extend = 'csv', filename = 'template'),
+                                                                        list(extend = 'excel', filename = 'template')),
                                                          text = 'Download'))
-                     ),
+      ),
       escape = FALSE, rownames = FALSE
-      ) %>%
+    ) %>%
       formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
   })
   
   output$test <- renderDataTable({})
   
   ## Side Bar : Template Matching → Heatmap ####
-  ### ヒートマップ図の描画 ####
+  ### Create heatmap ####
   heatmap_tbl <- reactive(
     heatmaply(Filter(is.numeric,
                      set_rownames(srga[close_genes()[[1]]$indices, ], 
@@ -448,7 +442,7 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
               Colv = FALSE)
   )
   
-  ### ヒートマップ図をモーダルダイアログ内に表示 ####
+  ### Display a heatmap inside the modal dialog box ####
   output$plot <- renderPlotly({
     heatmap_tbl()
   })
@@ -461,4 +455,129 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
       title = "Heatmap")
     )
   })
+}
+
+# Sub Menu : Enrichment Analysis ####
+EnrichUI <- function(id, cl) {
+  ns <- NS(id)
+  
+  tagList(
+    box(
+      title = "",
+      width = "100%",
+      sidebarLayout(
+        sidebarPanel(
+          h2("Preview"),
+          selectInput(ns("stress"), "Select stress :", choices = cl),
+          sliderInput(ns("slider"), "SRscore range :", min = -20, max = 20, value = c(-20, 20)),
+          actionButton(ns("submit"), "Atlas"),
+          actionButton(ns("analysis"), "Result"),
+          br(),
+          br(),
+          h2("Bulk download"),
+          pickerInput(ns("bulk"), "Select stress :", choices = cl, options = list("actions-box" = TRUE), multiple = T),
+          pickerInput(ns("attribute"), "Select attribute :",
+                      choices = c("query", "significant", "p_value", "term_size", 
+                                  "query_size", "intersection_size", "precision",
+                                  "recall", "term_id", "source", "term_name",
+                                  "effective_domain_size", "source_order",
+                                  "parents","evidence_codes", "intersection"),
+                      options = list("actions-box" = TRUE), multiple = T),
+          actionButton(ns("download"), "Download")
+        ),
+        mainPanel("",
+                  dataTableOutput(ns("filtered_tbl"))
+        )
+      )
+    ),
+    box(title = "",
+        width = "100%",
+        dataTableOutput(ns("result"))
+    )
+  )
+}
+
+Enrich <- function(input, output, session, srga, cl, Breaks, Color) {
+  
+  rv <- reactiveValues()
+  
+  observeEvent(input$submit, {
+    rv$df <- srga[which(srga[, input$stress] >= input$slider[1] & srga[, input$stress] <= input$slider[2]), ]
+  })
+  
+  output$filtered_tbl <- renderDataTable({
+    datatable(
+      rv$df,
+      filter = "top",
+      selection = "single",
+      extensions = c("Buttons", "FixedColumns"),
+      rownames = FALSE,
+      escape = FALSE,
+      options = list(columnDefs = list(list(className = "dt-nowrap", targets = "_all")),
+                     scrollX = TRUE, 
+                     fixedColumns = TRUE,
+                     dom = "lrtBip", buttons = list(list(extend = "collection",
+                                                         buttons = list(list(extend = "csv", filename = "SRGA"),
+                                                                        list(extend = "excel", filename = "SRGA")),
+                                                         text = "Download"))
+      )
+    ) %>%
+      formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
+  }, server = FALSE)
+  
+  query <- reactive({
+    srga$ensembl_gene_id[which(srga[, input$stress] >= input$slider[1] & srga[, input$stress] <= input$slider[2])]
+  })
+  
+  observeEvent(input$analysis, {
+    rv$earesult <- gost(query(),
+                        organism = "athaliana",
+                        multi_query = FALSE,
+                        evcodes = TRUE)[[1]]
+  })
+  
+  output$result <- renderDataTable({
+    options(digits = 3)
+    rv$earesult$p_value <- format(rv$earesult$p_value, scientific = TRUE)
+    datatable(
+      rv$earesult,
+      selection = "single",
+      rownames = FALSE,
+      extensions = c("Buttons", "FixedColumns"),
+      options = list(columnDefs = list(list(className = "dt-nowrap", targets = "_all")),
+                     scrollX = TRUE, 
+                     dom = 'flrtBip',
+                     buttons = list(
+                       I("colvis"),
+                       list(extend = 'collection',
+                            buttons = list(list(extend = 'csv', filename = 'ea_results', exportOptions = list(columns = ":visible")),
+                                           list(extend = 'excel', filename = 'ea_results', exportOptions = list(columns = ":visible"))),
+                            text = 'Download'))))
+  }, server = FALSE)
+  
+  observeEvent(input$result_rows_selected, {
+    rv$df <- srga[which(srga$ensembl_gene_id %in% 
+                          unlist(strsplit(rv$earesult$intersection[input$result_rows_selected], ","))), ]
+  })
+  
+  observeEvent(input$download, {
+    wb <- createWorkbook()
+    
+    withProgress(message = '', value = 0, {
+      for (i in input$bulk) {
+        df <- gost(query(),
+                   organism = "athaliana",
+                   multi_query = FALSE,
+                   evcodes = TRUE)[[1]]
+        df <- df[, input$attribute]
+        addWorksheet(wb, i)
+        writeData(wb, sheet = match(i, input$bulk), rowNames = FALSE, df)
+        incProgress(1/length(input$bulk), detail = i)
+        Sys.sleep(0.1)
+      }
+    })
+    modifyBaseFont(wb, fontSize = 12, fontName = "Arial")
+    saveWorkbook(wb, "ea_results.xlsx", overwrite = TRUE)
+  }
+  )
 }

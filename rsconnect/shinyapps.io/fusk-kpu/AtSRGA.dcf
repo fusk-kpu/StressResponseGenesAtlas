@@ -1,0 +1,12 @@
+name: AtSRGA
+title: AtSRGA
+username: fusk-kpu
+account: fusk-kpu
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11951064
+bundleId: 8590608
+url: https://fusk-kpu.shinyapps.io/AtSRGA/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
