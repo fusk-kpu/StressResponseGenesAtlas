@@ -52,4 +52,4 @@ shinyServer(function(input, output, session) {
   ## Sub Menu : Enrichment Analysis
   ## ======================================== ##
   callModule(Enrich, "rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
-}) # shinyServer
+})

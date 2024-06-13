@@ -23,13 +23,20 @@ ui <- dashboardPage(
                ".shiny-output-error { visibility: hidden; }",
                ".shiny-output-error:before { visibility: hidden; }"
     ),
+    
     tabItems(
+      ## ======================================================== ##
+      ## Menu : Home
+      ## ======================================================== ##
       tabItem(tabName = "Home",
               titlePanel("Wellcome to AtSRGA")
       ),    
       ## ======================================================== ##
-      ##  Microarray
+      ## Menu : Microarray
       ## ======================================================== ##
+      ## ======================================== ##
+      ## Sub Menu : Atlas
+      ## ======================================== ##
       tabItem(tabName = "Atlasm",
               tabBox(
                 title = "",
@@ -48,6 +55,9 @@ ui <- dashboardPage(
                 tabPanel("wound", stressUI("woundm"))
               )
       ),
+      ## ======================================== ##
+      ## Sub Menu : Template Matching
+      ## ======================================== ##
       tabItem(tabName = "TemplateMatchingm",
               box(
                 title = "",
@@ -55,12 +65,18 @@ ui <- dashboardPage(
                 TemplateMatchUI("microarray")
               )
       ),
+      ## ======================================== ##
+      ## Sub Menu : Enrichment Analysis
+      ## ======================================== ##
       tabItem(tabName = "EnrichmentAnalysism",
               EnrichUI("microarray", colnames_microarray)
       ),
-      ## ======================================================== ##
-      ##  RNA-Seq
-      ## ======================================================== ##
+      ## ========================================================= ##
+      ## Menu : RNA-Seq
+      ## ========================================================= ##
+      ## ======================================== ##
+      ## Sub Menu : Atlas
+      ## ======================================== ##
       tabItem(tabName = "Atlasr",
               tabBox(
                 title = "",
@@ -79,6 +95,9 @@ ui <- dashboardPage(
                 tabPanel("wound", stressUI("woundr"))
               )
       ),
+      ## ======================================== ##
+      ## Sub Menu : Template Matching
+      ## ======================================== ##
       tabItem(tabName = "TemplateMatchingr",
               box(
                 title = "",
@@ -86,6 +105,9 @@ ui <- dashboardPage(
                 TemplateMatchUI("rnaseq")
               )
       ),
+      ## ======================================== ##
+      ## Sub Menu : Enrichment Analysis
+      ## ======================================== ##
       tabItem(tabName = "EnrichmentAnalysisr",
               EnrichUI("rnaseq", colnames_rnaseq))
     )

@@ -155,7 +155,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
     updateTextAreaInput(session, "text", value = name)
   })
   
-  ### Create heatmap ####
+  ### Create a heatmap ####
   heatmap_tbl <- reactive(
     heatmaply(Filter(is.numeric,
                      set_rownames(rv$df, value = rv$df[, input$identifier])),
@@ -174,7 +174,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
               cellnote_textposition = "middle center")
   )
   
-  ### Display a heatmap inside the modal dialog box ####
+  ### Display the heatmap inside the modal dialog box ####
   output$plot <- renderPlotly({
     heatmap_tbl()
   })
@@ -219,7 +219,7 @@ stressUI <- function(id) {
 
 stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
   ## Table Display : SRratio ####
-  ### Retrieve the SR ratio of the specified gene (改善点あり) ####
+  ### Retrieve the SRratio of the specified gene (改善点あり) ####
   selectedRatio <- reactive({
     ratio[which(ratio$ensembl_gene_id %in% selectedRow()), ]
   })

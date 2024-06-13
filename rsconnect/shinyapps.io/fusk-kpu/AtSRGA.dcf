@@ -5,7 +5,7 @@ account: fusk-kpu
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 11951064
-bundleId: 8590608
+bundleId: 8594703
 url: https://fusk-kpu.shinyapps.io/AtSRGA/
 version: 1
 asMultiple: FALSE
