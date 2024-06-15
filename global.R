@@ -105,7 +105,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
   
   ## Side Bar : Bulk Search → Heatmap ####
   ### Input string ####
-  #### Lowercase conversion and delimiter splitting（Space or New Line or Tab or commma）####
+  #### Lowercase conversion and delimiter splitting（space or break or tab or commma）####
   lower_input <- reactive({
     strsplit(tolower(input$text), " |\n|\t|,")[[1]]
   })
@@ -240,7 +240,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
       formatStyle(colnames(selectedRatio())[-1], backgroundColor = styleInterval(c(-2, 2), c("skyblue", "white", "pink")))
   })
   
-  ### Identify the. treated samples that meet the following criteria ####
+  ### Identify the treated samples that meet the following criteria ####
   #### SRratio ≧ 2 (1) ####
   more <- reactive({
     which(metadata$treated_sample %in% colnames(rv$ratio)[rv$ratio >= 2])
@@ -257,7 +257,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
   })
   
   ## Table Display : Metadata ####
-  ### Color metadata (1 → pink、2 → skyblue) ####
+  ### Color the metadata (1 → pink、2 → skyblue) ####
   observeEvent(input$button_metadata, {
     rv$metadata <- datatable(
       metadata,
@@ -279,7 +279,8 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
       )
   })
   
-  ### SRratio ≧ 2のストレス処理サンプルのみを含むメタデータの取得 ####
+  ### Retrieve the metadata under the any following conditions  ####
+  #### SRratio ≧ 2 ####
   observeEvent(input$button_metadata_more, {
     rv$metadata <- datatable(
       metadata[more(), ],
@@ -294,7 +295,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     )
   })
   
-  ### -2 < SRratio < 2のストレス処理サンプルのみを含むメタデータの取得 ####
+  #### -2 < SRratio < 2 ####
   observeEvent(input$button_metadata_middle, {
     rv$metadata <- datatable(
       metadata[middle(), ],
@@ -309,7 +310,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     )
   })
   
-  ### SRratio ≦ -2のストレス処理サンプルのみを含むメタデータの取得 ####
+  #### SRratio ≦ -2 ####
   observeEvent(input$button_metadata_less, {
     rv$metadata <- datatable(
       metadata[less(), ],
@@ -564,8 +565,8 @@ Enrich <- function(input, output, session, srga, cl, Breaks, Color) {
     wb <- createWorkbook()
     
     withProgress(message = '', value = 0, {
-      for (i in input$bulk) {
-        df <- gost(query(),
+      for (i in unlist(strsplit(input$bulk, ","))) {
+        df <- gost(srga$ensembl_gene_id[which(srga[, i] >= input$slider[1] & srga[, i] <= input$slider[2])],
                    organism = "athaliana",
                    multi_query = FALSE,
                    evcodes = TRUE)[[1]]
