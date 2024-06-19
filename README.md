@@ -26,4 +26,4 @@ If all depended packages are successfully installed, logical value “TRUE” sh
 6. A web page will be open in you Browser to show the stress responsive gene atlas in Arabidopsis. Please see [our tutorial file](https://github.com/fusk-kpu/StressResponseGenesAtlas/raw/main/AtSRGA_tutorial_en.pdf).
 
 ## Feedback
-If you have further questions or suggestions regarding this App, please contact Atsushi Fukushima at afukushima@kpu.ac.jp at the Kyoto Prefectural Universitye (KPU).
+If you have further questions or suggestions regarding this App, please contact Atsushi Fukushima at afukushima@kpu.ac.jp at the Kyoto Prefectural University (KPU).
