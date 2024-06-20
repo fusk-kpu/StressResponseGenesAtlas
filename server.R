@@ -5,7 +5,7 @@ shinyServer(function(input, output, session) {
   ## ======================================== ##
   ## Sub Menu : Atlas
   ## ======================================== ##
-  select_microarray <- callModule(overview, "SRscore_microarray", SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
+  select_microarray <- callModule(overview, "microarray", SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
   callModule(stress, "ABAm", ABA_ratiom, SRscore_microarray, select_microarray, ABA_metadatam)
   callModule(stress, "coldm", cold_ratiom, SRscore_microarray, select_microarray, cold_metadatam)
   callModule(stress, "DC3000m", DC3000_ratiom, SRscore_microarray, select_microarray, DC3000_metadatam)
@@ -32,7 +32,7 @@ shinyServer(function(input, output, session) {
   ## ======================================== ##
   ## Sub Menu : Atlas
   ## ======================================== ##
-  select_rnaseq <- callModule(overview, "SRscore_rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
+  select_rnaseq <- callModule(overview, "rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
   callModule(stress, "ABAr", ABA_ratior, SRscore_rnaseq, select_rnaseq, ABA_metadatar)
   callModule(stress, "coldr", cold_ratior, SRscore_rnaseq, select_rnaseq, cold_metadatar)
   callModule(stress, "DC3000r", DC3000_ratior, SRscore_rnaseq, select_rnaseq, DC3000_metadatar)

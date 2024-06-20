@@ -41,7 +41,7 @@ ui <- dashboardPage(
               tabBox(
                 title = "",
                 width = "100%",
-                tabPanel("Overview", overviewUI("SRscore_microarray")),
+                tabPanel("Overview", overviewUI("microarray")),
                 tabPanel("ABA", stressUI("ABAm")),
                 tabPanel("cold", stressUI("coldm")),
                 tabPanel("DC3000", stressUI("DC3000m")),
@@ -81,7 +81,7 @@ ui <- dashboardPage(
               tabBox(
                 title = "",
                 width = "100%",
-                tabPanel("Overview", overviewUI("SRscore_rnaseq")),
+                tabPanel("Overview", overviewUI("rnaseq")),
                 tabPanel("ABA", stressUI("ABAr")),
                 tabPanel("cold", stressUI("coldr")),
                 tabPanel("DC3000", stressUI("DC3000r")),

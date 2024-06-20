@@ -1,24 +1,6 @@
-# Installation
-library("shiny")
-library("shinydashboard")
-library("shinyWidgets")
-library("shinyFiles")
-library("dplyr")
-library("tibble")
-library("ggplot2")
-library("DT")
-library("withr")
-library("targets")
-library("htmlwidgets")
-library("plotly")
-library("heatmaply")
-library("magrittr")
-library("genefilter")
-library("gprofiler2")
-library("openxlsx")
-
 # Source scripts
 # source("proxy.R", local = TRUE)
+source("prep.R", local = TRUE)
 source("data_processing.R", local = TRUE)
 
 
@@ -195,7 +177,6 @@ stressUI <- function(id) {
   ns <- NS(id)
   tagList(
     br(),
-    verbatimTextOutput(ns("test")),
     actionButton(ns("button_ratio"), "Show SRratio", icon("table"),
                  style = "color: white; background-color: #337ab7; border-color: #2e6da4"),
     br(),
