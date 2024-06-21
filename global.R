@@ -1,6 +1,6 @@
 # Source scripts
 # source("proxy.R", local = TRUE)
-source("prep.R", local = TRUE)
+source("setup.R", local = TRUE)
 source("data_processing.R", local = TRUE)
 
 
