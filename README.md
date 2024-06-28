@@ -17,7 +17,7 @@ To run this App after downloading this App from Github to your local PC, please 
 
    For example, I downloaded this App via 'Download ZIP' and unzipped it to the Desktop, then I need to set the working directory in R by `setwd("~/Desktop/StressResponseGenesAtlas-main")`.
    
-4. Install all depended CRAN R packages and R Bioconductor packages by sourcing the R installation program with `source("prep.R")`.
+4. Install all depended CRAN R packages and R Bioconductor packages by sourcing the R installation program with `source("setup.R")`.
 
 If all depended packages are successfully installed, logical value “TRUE” should be returned and printed on the R Console pane for each package after sourcing the installation program. Otherwise, please check whether you have the R version >=4.3 installed.
     
