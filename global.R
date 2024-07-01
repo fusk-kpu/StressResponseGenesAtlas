@@ -28,9 +28,9 @@ overviewUI <- function(id) {
                    actionButton(ns("example2"), "Example2"),
                    br(),
                    h4("You can remove inappropriate rows if any."),
-                   "1. Select rows in the table to the right.",
+                   "1. Select rows in the table.",
                    br(),
-                   "2. Click this button :",
+                   "2. Click 'Remove' button above the table.",
                    br(),
                    br(),
                    h4("2. Control paremeters of heatmap"),
@@ -437,129 +437,4 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
       title = "Heatmap")
     )
   })
-}
-
-# Sub Menu : Enrichment Analysis ####
-EnrichUI <- function(id, cl) {
-  ns <- NS(id)
-  
-  tagList(
-    box(
-      title = "",
-      width = "100%",
-      sidebarLayout(
-        sidebarPanel(
-          h2("Preview"),
-          selectInput(ns("stress"), "Select stress :", choices = cl),
-          sliderInput(ns("slider"), "SRscore range :", min = -20, max = 20, value = c(-20, 20)),
-          actionButton(ns("submit"), "Atlas"),
-          actionButton(ns("analysis"), "Result"),
-          br(),
-          br(),
-          h2("Bulk download"),
-          pickerInput(ns("bulk"), "Select stress :", choices = cl, options = list("actions-box" = TRUE), multiple = T),
-          pickerInput(ns("attribute"), "Select attribute :",
-                      choices = c("query", "significant", "p_value", "term_size", 
-                                  "query_size", "intersection_size", "precision",
-                                  "recall", "term_id", "source", "term_name",
-                                  "effective_domain_size", "source_order",
-                                  "parents","evidence_codes", "intersection"),
-                      options = list("actions-box" = TRUE), multiple = T),
-          actionButton(ns("download"), "Download")
-        ),
-        mainPanel("",
-                  dataTableOutput(ns("filtered_tbl"))
-        )
-      )
-    ),
-    box(title = "",
-        width = "100%",
-        dataTableOutput(ns("result"))
-    )
-  )
-}
-
-Enrich <- function(input, output, session, srga, cl, Breaks, Color) {
-  
-  rv <- reactiveValues()
-  
-  observeEvent(input$submit, {
-    rv$df <- srga[which(srga[, input$stress] >= input$slider[1] & srga[, input$stress] <= input$slider[2]), ]
-  })
-  
-  output$filtered_tbl <- renderDataTable({
-    datatable(
-      rv$df,
-      filter = "top",
-      selection = "single",
-      extensions = c("Buttons", "FixedColumns"),
-      rownames = FALSE,
-      escape = FALSE,
-      options = list(columnDefs = list(list(className = "dt-nowrap", targets = "_all")),
-                     scrollX = TRUE, 
-                     fixedColumns = TRUE,
-                     dom = "lrtBip", buttons = list(list(extend = "collection",
-                                                         buttons = list(list(extend = "csv", filename = "SRGA"),
-                                                                        list(extend = "excel", filename = "SRGA")),
-                                                         text = "Download"))
-      )
-    ) %>%
-      formatStyle(names(srga[cl]), backgroundColor = styleInterval(Breaks, Color))
-  }, server = FALSE)
-  
-  query <- reactive({
-    srga$ensembl_gene_id[which(srga[, input$stress] >= input$slider[1] & srga[, input$stress] <= input$slider[2])]
-  })
-  
-  observeEvent(input$analysis, {
-    rv$earesult <- gost(query(),
-                        organism = "athaliana",
-                        multi_query = FALSE,
-                        evcodes = TRUE)[[1]]
-  })
-  
-  output$result <- renderDataTable({
-    options(digits = 3)
-    rv$earesult$p_value <- format(rv$earesult$p_value, scientific = TRUE)
-    datatable(
-      rv$earesult,
-      selection = "single",
-      rownames = FALSE,
-      extensions = c("Buttons", "FixedColumns"),
-      options = list(columnDefs = list(list(className = "dt-nowrap", targets = "_all")),
-                     scrollX = TRUE, 
-                     dom = 'flrtBip',
-                     buttons = list(
-                       I("colvis"),
-                       list(extend = 'collection',
-                            buttons = list(list(extend = 'csv', filename = 'ea_results', exportOptions = list(columns = ":visible")),
-                                           list(extend = 'excel', filename = 'ea_results', exportOptions = list(columns = ":visible"))),
-                            text = 'Download'))))
-  }, server = FALSE)
-  
-  observeEvent(input$result_rows_selected, {
-    rv$df <- srga[which(srga$ensembl_gene_id %in% 
-                          unlist(strsplit(rv$earesult$intersection[input$result_rows_selected], ","))), ]
-  })
-  
-  observeEvent(input$download, {
-    wb <- createWorkbook()
-    
-    withProgress(message = '', value = 0, {
-      for (i in unlist(strsplit(input$bulk, ","))) {
-        df <- gost(srga$ensembl_gene_id[which(srga[, i] >= input$slider[1] & srga[, i] <= input$slider[2])],
-                   organism = "athaliana",
-                   multi_query = FALSE,
-                   evcodes = TRUE)[[1]]
-        df <- df[, input$attribute]
-        addWorksheet(wb, i)
-        writeData(wb, sheet = match(i, input$bulk), rowNames = FALSE, df)
-        incProgress(1/length(input$bulk), detail = i)
-        Sys.sleep(0.1)
-      }
-    })
-    modifyBaseFont(wb, fontSize = 12, fontName = "Arial")
-    saveWorkbook(wb, "ea_results.xlsx", overwrite = TRUE)
-  }
-  )
 }

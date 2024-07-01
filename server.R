@@ -21,11 +21,7 @@ shinyServer(function(input, output, session) {
   ## Sub Menu : Template Matching
   ## ======================================== ##
   callModule(TemplateMatch, "microarray", genefinder_microarray, select_microarray, SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
-  ## ======================================== ##
-  ## Sub Menu : Enrichment Analysis
-  ## ======================================== ##
-  callModule(Enrich, "microarray", SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
-  
+
   ## ========================================================= ##
   ## Menu : RNA-Seq
   ## ========================================================= ##
@@ -48,8 +44,4 @@ shinyServer(function(input, output, session) {
   ## Sub Menu : Template Matching
   ## ======================================== ##
   callModule(TemplateMatch, "rnaseq", genefinder_rnaseq, select_rnaseq, SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
-  ## ======================================== ##
-  ## Sub Menu : Enrichment Analysis
-  ## ======================================== ##
-  callModule(Enrich, "rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
 })

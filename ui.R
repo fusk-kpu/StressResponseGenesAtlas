@@ -7,14 +7,13 @@ ui <- dashboardPage(
       menuItem("Home", tabName = "Home", icon = icon("home")),
       menuItem("Microarray", tabName = "Microarray",
                menuSubItem("Atlas", tabName = "Atlasm"),
-               menuSubItem("Template Matching", tabName = "TemplateMatchingm"),
-               menuSubItem("Enrichment Analysis", tabName = "EnrichmentAnalysism")
-      ),
+               menuSubItem("Template Matching", tabName = "TemplateMatchingm")
+               ),
       menuItem("RNA-Seq", tabName = "RNA-Seq",
                menuSubItem("Atlas", tabName = "Atlasr"),
-               menuSubItem("Template Matching", tabName = "TemplateMatchingr"),
-               menuSubItem("Enrichment Analysis", tabName = "EnrichmentAnalysisr")
-      )
+               menuSubItem("Template Matching", tabName = "TemplateMatchingr")
+               ),
+      menuItem("Help", tabName = "Help")
     )
   ),
   
@@ -23,7 +22,6 @@ ui <- dashboardPage(
                ".shiny-output-error { visibility: hidden; }",
                ".shiny-output-error:before { visibility: hidden; }"
     ),
-    
     tabItems(
       ## ======================================================== ##
       ## Menu : Home
@@ -65,12 +63,6 @@ ui <- dashboardPage(
                 TemplateMatchUI("microarray")
               )
       ),
-      ## ======================================== ##
-      ## Sub Menu : Enrichment Analysis
-      ## ======================================== ##
-      tabItem(tabName = "EnrichmentAnalysism",
-              EnrichUI("microarray", colnames_microarray)
-      ),
       ## ========================================================= ##
       ## Menu : RNA-Seq
       ## ========================================================= ##
@@ -105,11 +97,42 @@ ui <- dashboardPage(
                 TemplateMatchUI("rnaseq")
               )
       ),
-      ## ======================================== ##
-      ## Sub Menu : Enrichment Analysis
-      ## ======================================== ##
-      tabItem(tabName = "EnrichmentAnalysisr",
-              EnrichUI("rnaseq", colnames_rnaseq))
-    )
+      ## ======================================================== ##
+      ## Menu : Help
+      ## ======================================================== ##
+      tabItem(tabName = "Help",
+              box(
+                title = "",
+                width = "100%",
+                h1("Tutorial"),
+                br(),
+                HTML("<h4>Please see ",
+                     "<a href = https://github.com/fusk-kpu/StressResponseGenesAtlas/raw/main/AtSRGA_tutorial_en.pdf > our tutorial file. </a>"),
+                h1("Contact us"),
+                br(),
+                HTML("<h4>To get in contact with our group, please visit : ",
+                     "<a href = https://www.kpu-g.com/english > https://www.kpu-g.com/english </a>"),
+                br(),
+                br(),
+                br(),
+                br(),
+                h1("Report bugs"),
+                br(),
+                HTML("<h4>The R code for this application is available on ",
+                     "<a href = https://github.com/fusk-kpu/StressResponseGenesAtlas >  Github </a>",
+                     ". <br> To report bugs and/or request features, please use the following GitHub issue channel : <br><br>
+                <a href = https://github.com/fusk-kpu/StressResponseGenesAtlas/issues > https://github.com/fusk-kpu/StressResponseGenesAtlas/issues </a>"),
+                br(),
+                br(),
+                br(),
+                br(),
+                h1("Citation"),
+                br(),
+                HTML("<h4>If you find <strong>AtSRGA</strong>, useful, please consider citing our publication : <br><br>
+                Coming soon :)"),
+                img(src = "hexsticker_AtSRGA.png", width = "250px", height = "300px",
+                    style="position:absolute; top:50px; right:50px;")
+              ))
+      )
   )
 )
