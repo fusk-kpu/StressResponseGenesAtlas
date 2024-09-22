@@ -8,7 +8,6 @@ pinned: false
 license: gpl-3.0
 ---
 
-
 # AtSRGA: an interactive web application to retrieve stress-responsive genes in _Arabidopsis thaliana_
 
 ## Background
