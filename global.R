@@ -386,6 +386,7 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
   },
   server = FALSE)
   
+  
   ### Display template ####
   output$selected <- renderDataTable({
     datatable(
