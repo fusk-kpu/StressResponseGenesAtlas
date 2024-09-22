@@ -137,6 +137,11 @@ overview <- function(input, output, session, srga, cl, Breaks, Color) {
     updateTextAreaInput(session, "text", value = name)
   })
   
+  output$tesss <- renderDataTable({
+    Filter(is.numeric,
+           set_rownames(rv$df, value = rv$df[, input$identifier]))
+  })
+  
   ### Create a heatmap ####
   heatmap_tbl <- reactive(
     heatmaply(Filter(is.numeric,
@@ -312,9 +317,6 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
   }, server = FALSE)
 }
 
-
-
-
 # Sub Menu : Template Matching ####
 TemplateMatchUI <- function(id) {
   ns <- NS(id)
@@ -350,7 +352,6 @@ TemplateMatchUI <- function(id) {
     )
   )
 }
-
 
 TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Breaks, Color) {
   ## Table Display : Template Matching results ####
