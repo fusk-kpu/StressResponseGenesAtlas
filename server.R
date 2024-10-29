@@ -5,22 +5,22 @@ shinyServer(function(input, output, session) {
   ## ======================================== ##
   ## Sub Menu : Atlas
   ## ======================================== ##
-  select_microarray <- callModule(overview, "SRscore_microarray", SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
-  callModule(stress, "ABAm", ABA_ratiom, SRscore_microarray, select_microarray, ABA_metadatam)
-  callModule(stress, "coldm", cold_ratiom, SRscore_microarray, select_microarray, cold_metadatam)
-  callModule(stress, "DC3000m", DC3000_ratiom, SRscore_microarray, select_microarray, DC3000_metadatam)
-  callModule(stress, "droughtm", drought_ratiom, SRscore_microarray, select_microarray, drought_metadatam)
-  callModule(stress, "heatm", heat_ratiom, SRscore_microarray, select_microarray, heat_metadatam)
-  callModule(stress, "highlightm", highlight_ratiom, SRscore_microarray, select_microarray, highlight_metadatam)
-  callModule(stress, "hypoxiam", hypoxia_ratiom, SRscore_microarray, select_microarray, hypoxia_metadatam)
-  callModule(stress, "osmoticm", osmotic_ratiom, SRscore_microarray, select_microarray, osmotic_metadatam)
-  callModule(stress, "oxidationm", oxidation_ratiom, SRscore_microarray, select_microarray, oxidation_metadatam)
-  callModule(stress, "saltm", salt_ratiom, SRscore_microarray, select_microarray, salt_metadatam)
-  callModule(stress, "woundm", wound_ratiom, SRscore_microarray, select_microarray, wound_metadatam)
+  atlas_ma <- callModule(overview, "SRscore_microarray", SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor, proportionSRscore_microarray, positiveSRscore_ma, negativeSRscore_ma)
+  callModule(stress, "ABAm", ABA_ratiom, SRscore_microarray, atlas_ma$geneid, ABA_metadatam)
+  callModule(stress, "coldm", Cold_ratiom, SRscore_microarray, atlas_ma$geneid, Cold_metadatam)
+  callModule(stress, "DC3000m", DC3000_ratiom, SRscore_microarray, atlas_ma$geneid, DC3000_metadatam)
+  callModule(stress, "droughtm", Drought_ratiom, SRscore_microarray, atlas_ma$geneid, Drought_metadatam)
+  callModule(stress, "heatm", Heat_ratiom, SRscore_microarray, atlas_ma$geneid, Heat_metadatam)
+  callModule(stress, "highlightm", `High-light_ratiom`, SRscore_microarray, atlas_ma$geneid, `High-light_metadatam`)
+  callModule(stress, "hypoxiam", Hypoxia_ratiom, SRscore_microarray, atlas_ma$geneid, Hypoxia_metadatam)
+  callModule(stress, "osmoticm", Osmotic_ratiom, SRscore_microarray, atlas_ma$geneid, Osmotic_metadatam)
+  callModule(stress, "oxidationm", Oxidation_ratiom, SRscore_microarray, atlas_ma$geneid, Oxidation_metadatam)
+  callModule(stress, "saltm", Salt_ratiom, SRscore_microarray, atlas_ma$geneid, Salt_metadatam)
+  callModule(stress, "woundm", Wound_ratiom, SRscore_microarray, atlas_ma$geneid, Wound_metadatam)
   ## ======================================== ##
   ## Sub Menu : Template Matching
   ## ======================================== ##
-  callModule(TemplateMatch, "microarray", genefinder_microarray, select_microarray, SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
+  callModule(TemplateMatch, "microarray", genefinder_microarray, atlas_ma$geneid, SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
 
   ## ========================================================= ##
   ## Menu : RNA-Seq
@@ -28,20 +28,20 @@ shinyServer(function(input, output, session) {
   ## ======================================== ##
   ## Sub Menu : Atlas
   ## ======================================== ##
-  select_rnaseq <- callModule(overview, "SRscore_rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
-  callModule(stress, "ABAr", ABA_ratior, SRscore_rnaseq, select_rnaseq, ABA_metadatar)
-  callModule(stress, "coldr", cold_ratior, SRscore_rnaseq, select_rnaseq, cold_metadatar)
-  callModule(stress, "DC3000r", DC3000_ratior, SRscore_rnaseq, select_rnaseq, DC3000_metadatar)
-  callModule(stress, "droughtr", drought_ratior, SRscore_rnaseq, select_rnaseq, drought_metadatar)
-  callModule(stress, "heatr", heat_ratior, SRscore_rnaseq, select_rnaseq, heat_metadatar)
-  callModule(stress, "highlightr", highlight_ratior, SRscore_rnaseq, select_rnaseq, highlight_metadatar)
-  callModule(stress, "hypoxiar", hypoxia_ratior, SRscore_rnaseq, select_rnaseq, hypoxia_metadatar)
-  callModule(stress, "osmoticr", osmotic_ratior, SRscore_rnaseq, select_rnaseq, osmotic_metadatar)
-  callModule(stress, "oxidationr", oxidation_ratior, SRscore_rnaseq, select_rnaseq, oxidation_metadatar)
-  callModule(stress, "salt", salt_ratior, SRscore_rnaseq, select_rnaseq, salt_metadatar)
-  callModule(stress, "wound", wound_ratior, SRscore_rnaseq, select_rnaseq, wound_metadatar)
+  atlas_rs <- callModule(overview, "SRscore_rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor, proportionSRscore_rnaseq, positiveSRscore_rs, negativeSRscore_rs)
+  callModule(stress, "ABAr", ABA_ratior, SRscore_rnaseq, atlas_rs$geneid, ABA_metadatar)
+  callModule(stress, "coldr", Cold_ratior, SRscore_rnaseq, atlas_rs$geneid, Cold_metadatar)
+  callModule(stress, "DC3000r", DC3000_ratior, SRscore_rnaseq, atlas_rs$geneid, DC3000_metadatar)
+  callModule(stress, "droughtr", Drought_ratior, SRscore_rnaseq, atlas_rs$geneid, Drought_metadatar)
+  callModule(stress, "heatr", Heat_ratior, SRscore_rnaseq, atlas_rs$geneid, Heat_metadatar)
+  callModule(stress, "highlightr", `High-light_ratior`, SRscore_rnaseq, atlas_rs$geneid, `High-light_metadatar`)
+  callModule(stress, "hypoxiar", Hypoxia_ratior, SRscore_rnaseq, atlas_rs$geneid, Hypoxia_metadatar)
+  callModule(stress, "osmoticr", Osmotic_ratior, SRscore_rnaseq, atlas_rs$geneid, Osmotic_metadatar)
+  callModule(stress, "oxidationr", Oxidation_ratior, SRscore_rnaseq, atlas_rs$geneid, Oxidation_metadatar)
+  callModule(stress, "saltr", Salt_ratior, SRscore_rnaseq, atlas_rs$geneid, Salt_metadatar)
+  callModule(stress, "woundr", Wound_ratior, SRscore_rnaseq, atlas_rs$geneid, Wound_metadatar)
   ## ======================================== ##
   ## Sub Menu : Template Matching
   ## ======================================== ##
-  callModule(TemplateMatch, "rnaseq", genefinder_rnaseq, select_rnaseq, SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
+  callModule(TemplateMatch, "rnaseq", genefinder_rnaseq, atlas_rs$geneid, SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
 }) # shinyServer
