@@ -21,7 +21,9 @@ ui <- dashboardPage(
     tags$style(type = "text/css",
                ".shiny-output-error { visibility: hidden; }",
                ".shiny-output-error:before { visibility: hidden; }"
-    ),
+              ),
+    tags$head(tags$style(HTML('.content-wrapper { overflow: auto; }'))
+              ),
     tabItems(
       ## ======================================================== ##
       ## Menu : Home
@@ -40,17 +42,39 @@ ui <- dashboardPage(
                 title = "",
                 width = "100%",
                 tabPanel("Overview", overviewUI("SRscore_microarray")),
-                tabPanel("ABA", stressUI("ABAm")),
-                tabPanel("cold", stressUI("coldm")),
-                tabPanel("DC3000", stressUI("DC3000m")),
-                tabPanel("drought", stressUI("droughtm")),
-                tabPanel("heat", stressUI("heatm")),
-                tabPanel("highlight", stressUI("highlightm")),
-                tabPanel("hypoxia", stressUI("hypoxiam")),
-                tabPanel("osmotic", stressUI("osmoticm")),
-                tabPanel("oxidation", stressUI("oxidationm")),
-                tabPanel("salt", stressUI("saltm")),
-                tabPanel("wound", stressUI("woundm"))
+                tabPanel("ABA",
+                         CollectionsInfo(collections_ma$ABA),
+                         stressUI("ABAm")),
+                tabPanel("Cold",
+                         CollectionsInfo(collections_ma$Cold),
+                         stressUI("coldm")),
+                tabPanel("DC3000",
+                         CollectionsInfo(collections_ma$DC3000),
+                         stressUI("DC3000m")),
+                tabPanel("Drought",
+                         CollectionsInfo(collections_ma$Drought),
+                         stressUI("droughtm")),
+                tabPanel("Heat",
+                         CollectionsInfo(collections_ma$Heat),
+                         stressUI("heatm")),
+                tabPanel("High-light",
+                         CollectionsInfo(collections_ma$`High-light`),
+                         stressUI("highlightm")),
+                tabPanel("Hypoxia",
+                         CollectionsInfo(collections_ma$Hypoxia),
+                         stressUI("hypoxiam")),
+                tabPanel("Osmotic",
+                         CollectionsInfo(collections_ma$Osmotic),
+                         stressUI("osmoticm")),
+                tabPanel("Oxidation",
+                         CollectionsInfo(collections_ma$Oxidation),
+                         stressUI("oxidationm")),
+                tabPanel("Salt",
+                         CollectionsInfo(collections_ma$Salt),
+                         stressUI("saltm")),
+                tabPanel("Wound",
+                         CollectionsInfo(collections_ma$Wound),
+                         stressUI("woundm"))
               )
       ),
       ## ======================================== ##
@@ -74,17 +98,39 @@ ui <- dashboardPage(
                 title = "",
                 width = "100%",
                 tabPanel("Overview", overviewUI("SRscore_rnaseq")),
-                tabPanel("ABA", stressUI("ABAr")),
-                tabPanel("cold", stressUI("coldr")),
-                tabPanel("DC3000", stressUI("DC3000r")),
-                tabPanel("heat", stressUI("heatr")),
-                tabPanel("drought", stressUI("droughtr")),
-                tabPanel("highlight", stressUI("highlightr")),
-                tabPanel("hypoxia", stressUI("hypoxiar")),
-                tabPanel("osmotic", stressUI("osmoticr")),
-                tabPanel("oxidation", stressUI("oxidationr")),
-                tabPanel("salt", stressUI("saltr")),
-                tabPanel("wound", stressUI("woundr"))
+                tabPanel("ABA",
+                         CollectionsInfo(collections_rs$ABA),
+                         stressUI("ABAr")),
+                tabPanel("Cold",
+                         CollectionsInfo(collections_rs$Cold),
+                         stressUI("coldr")),
+                tabPanel("DC3000",
+                         CollectionsInfo(collections_rs$DC3000),
+                         stressUI("DC3000r")),
+                tabPanel("Drought",
+                         CollectionsInfo(collections_rs$Drought),
+                         stressUI("droughtr")),
+                tabPanel("Heat",
+                         CollectionsInfo(collections_rs$Heat),
+                         stressUI("heatr")),
+                tabPanel("High-light",
+                         CollectionsInfo(collections_rs$`High-light`),
+                         stressUI("highlightr")),
+                tabPanel("Hypoxia",
+                         CollectionsInfo(collections_rs$Hypoxia),
+                         stressUI("hypoxiar")),
+                tabPanel("Osmotic",
+                         CollectionsInfo(collections_rs$Osmotic),
+                         stressUI("osmoticr")),
+                tabPanel("Oxidation",
+                         CollectionsInfo(collections_rs$Oxidation),
+                         stressUI("oxidationr")),
+                tabPanel("Salt",
+                         CollectionsInfo(collections_rs$Salt),
+                         stressUI("saltr")),
+                tabPanel("Wound",
+                         CollectionsInfo(collections_rs$Wound),
+                         stressUI("woundr"))
               )
       ),
       ## ======================================== ##
@@ -136,7 +182,8 @@ ui <- dashboardPage(
                 Coming soon :)"),
                 img(src = "hexsticker_AtSRGA.png", width = "250px", height = "300px",
                     style="position:absolute; top:50px; right:50px;")
-              ))
-      )
-  )
-)
+              )
+             )
+      ) # tabItems
+  ) #dashboardBody
+) #dashboardPage
