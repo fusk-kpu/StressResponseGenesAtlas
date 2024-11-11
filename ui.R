@@ -22,7 +22,7 @@ ui <- dashboardPage(
                ".shiny-output-error { visibility: hidden; }",
                ".shiny-output-error:before { visibility: hidden; }"
               ),
-    tags$head(tags$style(HTML('.content-wrapper { overflow: auto; }'))
+    tags$head(tags$style(HTML(".content-wrapper { overflow: auto; }"))
               ),
     tabItems(
       ## ======================================================== ##
@@ -161,7 +161,8 @@ ui <- dashboardPage(
                 h1("Contact us"),
                 br(),
                 HTML("<h4>To get in contact with our group, please visit : ",
-                     "<a href = https://www.kpu-g.com/english > https://www.kpu-g.com/english </a>"),
+                     "<a href = https://www.kpu-g.com/english", blank, 
+                     " > https://www.kpu-g.com/english </a>"),
                 br(),
                 br(),
                 br(),
@@ -169,9 +170,12 @@ ui <- dashboardPage(
                 h1("Report bugs"),
                 br(),
                 HTML("<h4>The R code for this application is available on ",
-                     "<a href = https://github.com/fusk-kpu/StressResponseGenesAtlas >  Github </a>",
+                     "<a href = https://github.com/fusk-kpu/StressResponseGenesAtlas ",
+                     blank, "> Github </a>",
                      ". <br> To report bugs and/or request features, please use the following GitHub issue channel : <br><br>
-                <a href = https://github.com/fusk-kpu/StressResponseGenesAtlas/issues > https://github.com/fusk-kpu/StressResponseGenesAtlas/issues </a>"),
+                     <a href = https://github.com/fusk-kpu/StressResponseGenesAtlas/issues ",
+                     blank, ">
+                     https://github.com/fusk-kpu/StressResponseGenesAtlas/issues </a>"),
                 br(),
                 br(),
                 br(),
@@ -180,7 +184,7 @@ ui <- dashboardPage(
                 br(),
                 HTML("<h4>If you find <strong>AtSRGA</strong>, useful, please consider citing our publication : <br><br>
                 Coming soon :)"),
-                img(src = "hexsticker_AtSRGA.png", width = "250px", height = "300px",
+                img(src = "hexsticker_AtSRGA.png", width = "25%", height = "auto",
                     style="position:absolute; top:50px; right:50px;")
               )
              )

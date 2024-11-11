@@ -5,7 +5,8 @@ shinyServer(function(input, output, session) {
   ## ======================================== ##
   ## Sub Menu : Atlas
   ## ======================================== ##
-  atlas_ma <- callModule(overview, "SRscore_microarray", SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor, proportionSRscore_microarray, positiveSRscore_ma, negativeSRscore_ma)
+  atlas_ma <- callModule(overview, "SRscore_microarray", SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor, 
+                         gokegg, positiveSRscore_ma, negativeSRscore_ma, nonzeroSRscore_ma)
   callModule(stress, "ABAm", ABA_ratiom, SRscore_microarray, atlas_ma$geneid, ABA_metadatam)
   callModule(stress, "coldm", Cold_ratiom, SRscore_microarray, atlas_ma$geneid, Cold_metadatam)
   callModule(stress, "DC3000m", DC3000_ratiom, SRscore_microarray, atlas_ma$geneid, DC3000_metadatam)
@@ -20,7 +21,8 @@ shinyServer(function(input, output, session) {
   ## ======================================== ##
   ## Sub Menu : Template Matching
   ## ======================================== ##
-  callModule(TemplateMatch, "microarray", genefinder_microarray, atlas_ma$geneid, SRscore_microarray, colnames_microarray, microarrayBreaks, microarrayColor)
+  callModule(TemplateMatch, "microarray", genefinder_microarray, atlas_ma$geneid, SRscore_microarray, 
+             colnames_microarray, microarrayBreaks, microarrayColor)
 
   ## ========================================================= ##
   ## Menu : RNA-Seq
@@ -28,7 +30,8 @@ shinyServer(function(input, output, session) {
   ## ======================================== ##
   ## Sub Menu : Atlas
   ## ======================================== ##
-  atlas_rs <- callModule(overview, "SRscore_rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor, proportionSRscore_rnaseq, positiveSRscore_rs, negativeSRscore_rs)
+  atlas_rs <- callModule(overview, "SRscore_rnaseq", SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor, 
+                         gokegg, positiveSRscore_rs, negativeSRscore_rs, nonzeroSRscore_rs)
   callModule(stress, "ABAr", ABA_ratior, SRscore_rnaseq, atlas_rs$geneid, ABA_metadatar)
   callModule(stress, "coldr", Cold_ratior, SRscore_rnaseq, atlas_rs$geneid, Cold_metadatar)
   callModule(stress, "DC3000r", DC3000_ratior, SRscore_rnaseq, atlas_rs$geneid, DC3000_metadatar)
@@ -43,5 +46,6 @@ shinyServer(function(input, output, session) {
   ## ======================================== ##
   ## Sub Menu : Template Matching
   ## ======================================== ##
-  callModule(TemplateMatch, "rnaseq", genefinder_rnaseq, atlas_rs$geneid, SRscore_rnaseq, colnames_rnaseq, rnaseqBreaks, rnaseqColor)
+  callModule(TemplateMatch, "rnaseq", genefinder_rnaseq, atlas_rs$geneid, SRscore_rnaseq,
+             colnames_rnaseq, rnaseqBreaks, rnaseqColor)
 }) # shinyServer

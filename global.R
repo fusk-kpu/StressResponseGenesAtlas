@@ -40,7 +40,6 @@ overviewUI <- function(id) {
                  width = 12,
                  status = "success",
                  solidHeader = TRUE,
-                 h4("Control paremeters of heatmap"),
                  selectInput(ns("identifier"),
                              label = "Choose y axis :",
                              choices = c("ensembl_gene_id",
@@ -56,8 +55,13 @@ overviewUI <- function(id) {
                  width = 12, 
                  status = "warning",
                  solidHeader = TRUE,
-                 radioButtons(ns("source"), "Include gene sets from AtSRGA :", c("positiveSRscore (SRscore ≧ 1)", "negativeSRscore (SRscore ≦ -1)"), selected = ""),
+                 radioButtons(ns("source"),
+                              "Include gene sets from AtSRGA :",
+                              c("positiveSRscore (SRscore ≧ 1) .",
+                                "negativeSRscore (SRscore ≦ -1) .",
+                                "both of the above."), selected = ""),
                  actionButton(ns("reset2"), "Reset"),
+                 br(),
                  br(),
                  br(),
                  actionButton(ns("analysis"), "Analysis",
@@ -70,10 +74,13 @@ overviewUI <- function(id) {
                              selected = "GeneRatio"),
                  numericInput(ns("showCategory"),
                               label = "Set number of categories to display :",
-                              value = 30),
+                              value = 10),
                  numericInput(ns("labelFormat"),
                               label = "Set wrap length :",
-                              value = 100)
+                              value = 100),
+                 numericInput(ns("dotplot_height"),
+                              label = "Adjust height of plot :",
+                              value = 500)
                  )
              )
       ),
@@ -81,7 +88,7 @@ overviewUI <- function(id) {
     )
 }
 
-overview <- function(input, output, session, srga, cl, Breaks, Color, prop, positive, negative) {
+overview <- function(input, output, session, srga, cl, Breaks, Color, prop, positive, negative, nonzero) {
   ##　Table Display : SRGA (Stress Response Gene Atlas) ####
   ### Display the atlas as a heatmap ####
   rv  <- reactiveValues(df = srga)
@@ -222,9 +229,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color, prop, posi
     withProgress(message = "", {
       if (is.null(input$source)) {
         rv$earesult <- enrichGO(gene = query(),
-                                OrgDb = "org.At.tair.db",
-                                keyType = "TAIR",
-                                ont = "ALL",
+                                TERM2GENE = gokegg,
                                 pvalueCutoff = 0.05,
                                 maxGSSize = 2000)
       } else if (input$source == "positiveSRscore (SRscore ≧ 1)") {
@@ -235,6 +240,11 @@ overview <- function(input, output, session, srga, cl, Breaks, Color, prop, posi
       } else if (input$source == "negativeSRscore (SRscore ≦ -1)") {
         rv$earesult <- enricher(gene = query(),
                                 TERM2GENE = negative,
+                                pvalueCutoff = 0.05,
+                                maxGSSize = 2000)
+      } else if (input$source == "both of the above.") {
+        rv$earesult <- enricher(gene = query(),
+                                TERM2GENE = nonzero,
                                 pvalueCutoff = 0.05,
                                 maxGSSize = 2000)
       }
@@ -249,13 +259,14 @@ overview <- function(input, output, session, srga, cl, Breaks, Color, prop, posi
     dotplot(rv$earesult,
             showCategory = input$showCategory,
             label_format = input$labelFormat, 
-            x = input$xaxis)
-  })
+            x = input$xaxis) +
+      theme( 
+        legend.text=element_text(size = 12))
+  }, height = reactive(input$dotplot_height))
   
-  return(list(
-    geneid = reactive(rv$df$ensembl_gene_id[input$atlas_rows_selected])
-    )
-    )
+  return(
+    list(geneid = reactive(rv$df$ensembl_gene_id[input$atlas_rows_selected]))
+  )
 }
 
 ## Tab : Abiotic and biotic stress ####
@@ -342,6 +353,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
       rv$metadata <- datatable(
         metadata,
         selection = "single",
+        escape = FALSE,
         rownames = FALSE,
         options = list(paging = FALSE,
                        scrollY = "1000px",
@@ -354,6 +366,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     rv$metadata <- datatable(
       metadata,
       selection = "single",
+      escape = FALSE,
       rownames = FALSE,
       options = list(paging = FALSE,
                      scrollY = "1000px",
@@ -376,6 +389,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     rv$metadata <- datatable(
       metadata[more(), ],
       selection = "single",
+      escape = FALSE,
       rownames = FALSE,
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      dom = 'flrtBip', 
@@ -390,6 +404,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     rv$metadata <- datatable(
       metadata[middle(), ],
       selection = "single",
+      escape = FALSE,
       rownames = FALSE,
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      dom = 'flrtBip', 
@@ -404,6 +419,7 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     rv$metadata <- datatable(
       metadata[less(), ],
       selection = "single",
+      escape = FALSE,
       rownames = FALSE,
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      dom = 'flrtBip', 

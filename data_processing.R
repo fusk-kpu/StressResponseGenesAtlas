@@ -16,42 +16,45 @@ microarrayColor <- colorRampPalette(c("deepskyblue", "white", "hotpink"))(palett
 # リンクの見た目設定
 link <- rep("link", nrow(SRscore_microarray))
 
+# 新規タブで開く（脆弱性対策付き）
+blank <- "target = _blank rel = noopener noreferrer"
+
 # AlphaFold2
 url <- rep(paste0("https://alphafold.ebi.ac.uk/search/text/",
                   SRscore_microarray$ensembl_gene_id))
-AF2 <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+AF2 <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # ATTED-II
 url <- rep(paste0("https://atted.jp/kwsearch/?stype=any&kword=", 
                   SRscore_microarray$ensembl_gene_id, 
                   "&searchBtnK.x=0&searchBtnK.y=0"))
-ATTED2 <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+ATTED2 <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # eFP Browser
 url <- rep(paste0("https://bar.utoronto.ca/efp/cgi-bin/efpWeb.cgi?dataSource=Abiotic_Stress&mode=Absolute&primaryGene=",
                   SRscore_microarray$ensembl_gene_id))
-eFP <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+eFP <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # KEGG
 url <- rep(paste0("https://www.genome.jp/dbget-bin/www_bget?ath:", SRscore_microarray$ensembl_gene_id))
-KEGG <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+KEGG <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # STRING
 url <- rep(paste0("https://string-db.org/cgi/network?identifiers=",
                   SRscore_microarray$ensembl_gene_id,
                   "&species=3702&show_query_node_labels=1"))
-STRING <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+STRING <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # TAIR
 url <- rep(paste0("https://www-arabidopsis-org.translate.goog/servlets/TairObject?type=locus&name=", 
                   SRscore_microarray$ensembl_gene_id, 
                   "&_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja&_x_tr_pto=sc"))
-TAIR <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+TAIR <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # ThaleMine
 url <- rep(paste0("https://bar.utoronto.ca/thalemine/keywordSearchResults.do?searchTerm=",
                   SRscore_microarray$ensembl_gene_id, "&searchSubmit=GO"))
-TM <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+TM <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # それぞれのリンクをアトラスに結合 
 SRscore_microarray <- cbind(SRscore_microarray, "AlphaFold2" = AF2, "ATTED-II" = ATTED2, "eFP Browser" = eFP, 
@@ -88,14 +91,6 @@ Wound_metadatam <- readRDS("data/microarray/Metadata/Wound.rds")
 genefinder_microarray <- column_to_rownames(SRscore_microarray, var = "ensembl_gene_id")
 genefinder_microarray <- genefinder_microarray[colnames_microarray]
 genefinder_microarray <- as.matrix(genefinder_microarray)
-
-# GMTファイルを読み込む
-positiveSRscore_ma <- read.gmt("positiveSRscore_ma.gmt")
-negativeSRscore_ma <- read.gmt("negativeSRscore_ma.gmt")
-genesets <- read.gmt("Ara_kegg_go.gmt")
-
-positiveSRscore_ma <- rbind(positiveSRscore_ma, genesets)
-negativeSRscore_ma <- rbind(negativeSRscore_ma, genesets)
 
 # データ集計
 list_microarray <- list(ABA_metadatam, 
@@ -154,39 +149,39 @@ link <- rep("link", nrow(SRscore_rnaseq))
 # AlphaFold2
 url <- rep(paste0("https://alphafold.ebi.ac.uk/search/text/",
                   SRscore_rnaseq$ensembl_gene_id))
-AF2 <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+AF2 <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # ATTED-II
 url <- rep(paste0("https://atted.jp/kwsearch/?stype=any&kword=", 
                   SRscore_rnaseq$ensembl_gene_id, 
                   "&searchBtnK.x=0&searchBtnK.y=0"))
-ATTED2 <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+ATTED2 <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # eFP Browser
 url <- rep(paste0("https://bar.utoronto.ca/efp/cgi-bin/efpWeb.cgi?dataSource=Abiotic_Stress&mode=Absolute&primaryGene=",
                   SRscore_rnaseq$ensembl_gene_id))
-eFP <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+eFP <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # KEGG
 url <- rep(paste0("https://www.genome.jp/dbget-bin/www_bget?ath:", SRscore_rnaseq$ensembl_gene_id))
-KEGG <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+KEGG <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # STRING
 url <- rep(paste0("https://string-db.org/cgi/network?identifiers=",
                   SRscore_rnaseq$ensembl_gene_id,
                   "&species=3702&show_query_node_labels=1"))
-STRING <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+STRING <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # TAIR
 url <- rep(paste0("https://www-arabidopsis-org.translate.goog/servlets/TairObject?type=locus&name=", 
                   SRscore_rnaseq$ensembl_gene_id, 
                   "&_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja&_x_tr_pto=sc"))
-TAIR <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+TAIR <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # ThaleMine
 url <- rep(paste0("https://bar.utoronto.ca/thalemine/keywordSearchResults.do?searchTerm=",
                   SRscore_rnaseq$ensembl_gene_id, "&searchSubmit=GO"))
-TM <- paste0("<a href = ", "'", url, "'", ">", link, "</a>")
+TM <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # 各リンクをアトラスへ結合 
 SRscore_rnaseq <- cbind(SRscore_rnaseq, "AlphaFold2" = AF2, "ATTED-II" = ATTED2, "eFP Browser" = eFP,
@@ -223,14 +218,6 @@ Wound_metadatar <- readRDS("data/rnaseq/Metadata/Wound.rds")
 genefinder_rnaseq <- column_to_rownames(SRscore_rnaseq, var = "ensembl_gene_id")
 genefinder_rnaseq <- genefinder_rnaseq[colnames_rnaseq]
 genefinder_rnaseq <- as.matrix(genefinder_rnaseq)
-
-# GMTファイルを読み込む
-positiveSRscore_rs <- read.gmt("positiveSRscore_rs.gmt")
-negativeSRscore_rs <- read.gmt("negativeSRscore_rs.gmt")
-genesets <- read.gmt("Ara_kegg_go.gmt")
-
-positiveSRscore_rs <- rbind(positiveSRscore_rs, genesets)
-negativeSRscore_rs <- rbind(negativeSRscore_rs, genesets)
 
 # データ集計
 list_rnaseq <- list(ABA_metadatar, 
@@ -280,16 +267,18 @@ CollectionsInfo <- function(stress) {
 }
 
 # GMTファイルを読み込む
-positiveSRscore_ma <- read.gmt("positiveSRscore_ma.gmt")
-negativeSRscore_ma <- read.gmt("negativeSRscore_ma.gmt")
+positiveSRscore_ma <- read.gmt("gmt/microarray/positiveSRscore_ma.gmt")
+negativeSRscore_ma <- read.gmt("gmt/microarray/negativeSRscore_ma.gmt")
 
-positiveSRscore_rs <- read.gmt("positiveSRscore_rs.gmt")
-negativeSRscore_rs <- read.gmt("negativeSRscore_rs.gmt")
+positiveSRscore_rs <- read.gmt("gmt/rnaseq/positiveSRscore_rs.gmt")
+negativeSRscore_rs <- read.gmt("gmt/rnaseq/negativeSRscore_rs.gmt")
 
-genesets <- read.gmt("Ara_kegg_go.gmt")
+gokegg <- read.gmt("gmt/Ara_kegg_go.gmt")
 
-positiveSRscore_ma <- rbind(positiveSRscore_ma, genesets)
-negativeSRscore_ma <- rbind(negativeSRscore_ma, genesets)
+positiveSRscore_ma <- rbind(positiveSRscore_ma, gokegg)
+negativeSRscore_ma <- rbind(negativeSRscore_ma, gokegg)
+nonzeroSRscore_ma <- rbind(positiveSRscore_ma, negativeSRscore_ma, gokegg)
 
-positiveSRscore_rs <- rbind(positiveSRscore_rs, genesets)
-negativeSRscore_rs <- rbind(negativeSRscore_rs, genesets)
+positiveSRscore_rs <- rbind(positiveSRscore_rs, gokegg)
+negativeSRscore_rs <- rbind(negativeSRscore_rs, gokegg)
+nonzeroSRscore_rs <- rbind(positiveSRscore_rs, negativeSRscore_rs, gokegg)
