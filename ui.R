@@ -4,17 +4,26 @@ ui <- dashboardPage(
   
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Home", tabName = "Home", icon = icon("home")),
-      menuItem("Microarray", tabName = "Microarray",
+      menuItem(h4("Getting Started"), tabName = "Getting_Started"),
+      menuItem(h4("Microarray"), tabName = "Microarray",
                menuSubItem("Atlas", tabName = "Atlasm"),
                menuSubItem("Template Matching", tabName = "TemplateMatchingm")
                ),
-      menuItem("RNA-Seq", tabName = "RNA-Seq",
+      menuItem(h4("RNA-Seq"), tabName = "RNA-Seq",
                menuSubItem("Atlas", tabName = "Atlasr"),
                menuSubItem("Template Matching", tabName = "TemplateMatchingr")
                ),
-      menuItem("Help", tabName = "Help")
-    )
+      menuItem(h4("Tutorial"), tabName = "Tutorial"),
+      menuItem(h4("Contact us"), tabName = "Contact_us"),
+      menuItem(h4("Report bugs"), tabName = "Report_bugs"),
+      menuItem(h4("Citation"), tabName = "Citation")
+      ),
+    br(),
+    br(),
+    div(style = "padding-left: 10px;",
+        p("Creative Commons LicenseExcept where otherwise noted, this work is subject to a Creative Commons Attribution 4.0 International License. (c) 2025 Kyoto Prefectural University")
+       ),
+    img(src = "LicenseMark.png", height = "70%", width = "70%", style = "padding-left: 10px;")
   ),
   
   dashboardBody(
@@ -28,8 +37,23 @@ ui <- dashboardPage(
       ## ======================================================== ##
       ## Menu : Home
       ## ======================================================== ##
-      tabItem(tabName = "Home",
-              titlePanel("Wellcome to AtSRGA")
+      tabItem(tabName = "Getting_Started",
+              box(
+                title = "",
+                width = "100%",
+                includeMarkdown("md/introduction.Rmd")
+                ),
+              box(
+                title = "",
+                width = "100%",
+                includeMarkdown("md/quick_start.Rmd")
+                ),
+              box(
+                title = "",
+                width = "100%",
+                includeMarkdown("md/overview.Rmd")
+                )
+              
       ),    
       ## ======================================================== ##
       ## Menu : Microarray
@@ -146,46 +170,44 @@ ui <- dashboardPage(
       ## ======================================================== ##
       ## Menu : Help
       ## ======================================================== ##
-      tabItem(tabName = "Help",
+      tabItem(tabName = "Tutorial",
               box(
-                title = "",
+                title = h1(strong("Tutorial")),
                 width = "100%",
-                h1("Tutorial"),
+                HTML(
+                  "<h3>For more detail infomation and operating instruction, please see ",
+                  "<a href =  https://github.com/fusk-kpu/StressResponseGenesAtlas/raw/main/AtSRGA_tutorial_en.pdf > our tutorial file</a>.")
+                )
+              ),
+      tabItem(tabName = "Contact_us",
+              box(
+                title = h1(strong("Contact us")),
+                width = "100%",
+                HTML(
+                  "<h3>To get in contact with our group, please visit ",
+                  "<a href = https://www.kpu-g.com/english target = _blank rel = noopener noreferrer > our laboratory's website</a>.")
+              )
+              ),
+      tabItem(tabName = "Report_bugs",
+              box(
+                title = h1(strong("Report bugs")),
+                width = "100%",
+                HTML(
+                  "<h3>The R code for this application is available on ",
+                  "<a href = https://github.com/fusk-kpu/StressResponseGenesAtlas target = _blank rel = noopener noreferrer > Github</a>."),
                 br(),
-                HTML("<h4>Please see ",
-                     "<a href = https://github.com/fusk-kpu/StressResponseGenesAtlas/raw/main/AtSRGA_tutorial_en.pdf > our tutorial file. </a>"),
+                HTML(
+                  "<h3>To report bugs and/or request features, please post ",
+                  "<a href = https://github.com/fusk-kpu/StressResponseGenesAtlas/issues target = _blank rel = noopener noreferrer > issue on github</a>.")
+                )
+              ),
+      tabItem(tabName = "Citation",
+              box(
+                title = h1(strong("Citation")),
+                width = "100%",
+                HTML("<h3>If you find AtSRGA useful, please consider citing our publication : "),
                 br(),
-                br(),
-                br(),
-                br(),
-                h1("Contact us"),
-                br(),
-                HTML("<h4>To get in contact with our group, please visit : ",
-                     "<a href = https://www.kpu-g.com/english", blank, 
-                     " > https://www.kpu-g.com/english </a>"),
-                br(),
-                br(),
-                br(),
-                br(),
-                h1("Report bugs"),
-                br(),
-                HTML("<h4>The R code for this application is available on ",
-                     "<a href = https://github.com/fusk-kpu/StressResponseGenesAtlas ",
-                     blank, "> Github </a>",
-                     ". <br> To report bugs and/or request features, please use the following GitHub issue channel : <br><br>
-                     <a href = https://github.com/fusk-kpu/StressResponseGenesAtlas/issues ",
-                     blank, ">
-                     https://github.com/fusk-kpu/StressResponseGenesAtlas/issues </a>"),
-                br(),
-                br(),
-                br(),
-                br(),
-                h1("Citation"),
-                br(),
-                HTML("<h4>If you find <strong>AtSRGA</strong>, useful, please consider citing our publication : <br><br>
-                Coming soon :)"),
-                img(src = "hexsticker_AtSRGA.png", width = "25%", height = "auto",
-                    style="position:absolute; top:50px; right:50px;")
+                HTML("<h3>Coming soon :)")
               )
              )
       ) # tabItems

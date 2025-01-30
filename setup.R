@@ -1,6 +1,6 @@
 packages <- c("shiny", "shinydashboard", "shinyWidgets",
               "DT", "ggplot2", "dplyr", "tibble", "htmlwidgets", "plotly",
-              "heatmaply", "magrittr", "openxlsx")
+              "heatmaply", "magrittr", "openxlsx", "markdown")
 if (length(setdiff(packages, installed.packages()[, "Package"])) > 0) {
   install.packages(setdiff(packages, rownames(installed.packages())))  
 }

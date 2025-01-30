@@ -11,7 +11,7 @@ overviewUI <- function(id) {
   tagList(
     fluidPage(
       actionButton(ns("clear"), "Clear Selected Rows"),
-      actionButton(ns("reset"), "Reset Table"),
+      actionButton(ns("reset"), "Reset Table", icon("rotate-right")),
       actionButton(ns("remove"), "Remove",
                    style = "color: red"),
       br(),
@@ -26,7 +26,7 @@ overviewUI <- function(id) {
                  width = 12,
                  status = "primary",
                  solidHeader = TRUE,
-                 textAreaInput(ns("text"), h4("Input list of identifiers :"),
+                 textAreaInput(ns("text"), strong("Input list of identifiers :"),
                                width = "400px", height = "300px"
                  ),
                  actionButton(ns("submit"), "Submit",
@@ -34,7 +34,8 @@ overviewUI <- function(id) {
                  actionButton(ns("example1"), "Example1"),
                  actionButton(ns("example2"), "Example2"),
                  br(),
-                 actionButton(ns("selected"), "Entries shown above"))),
+                 actionButton(ns("selected"), "Entries shown above")
+                )),
       column(width = 4,
              box(title = "Bulk Search → Heatmap",
                  width = 12,
@@ -45,8 +46,8 @@ overviewUI <- function(id) {
                              choices = c("ensembl_gene_id",
                                          "SYMBOL"),
                              selected = "ensembl_gene_id"),
-                 numericInput(ns("height"),
-                              label = "height :",
+                 numericInput(ns("heatmap_height"),
+                              label = "Adjust height of heatmap :",
                               value = 400),
                  actionButton(ns("heatmap"), "Plot",
                               style = "color: white; background-color: #337ab7; border-color: #2e6da4"))),
@@ -56,9 +57,9 @@ overviewUI <- function(id) {
                  status = "warning",
                  solidHeader = TRUE,
                  radioButtons(ns("source"),
-                              "Include gene sets from AtSRGA :",
-                              c("positiveSRscore (SRscore ≧ 1) .",
-                                "negativeSRscore (SRscore ≦ -1) .",
+                              "Include gene sets with :",
+                              c("positive SRscore (SRscore ≧ 1).",
+                                "negative SRscore (SRscore ≦ -1).",
                                 "both of the above."), selected = ""),
                  actionButton(ns("reset2"), "Reset"),
                  br(),
@@ -88,7 +89,7 @@ overviewUI <- function(id) {
     )
 }
 
-overview <- function(input, output, session, srga, cl, Breaks, Color, prop, positive, negative, nonzero) {
+overview <- function(input, output, session, srga, cl, Breaks, Color, gokegg, positive, negative, nonzero) {
   ##　Table Display : SRGA (Stress Response Gene Atlas) ####
   ### Display the atlas as a heatmap ####
   rv  <- reactiveValues(df = srga)
@@ -184,7 +185,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color, prop, posi
   ### Create heatmap ####
   heatmap_tbl <- reactive(
     heatmaply(set_rownames(rv$df[cl], value = rv$df[, input$identifier]),
-              height = input$height,
+              height = input$heatmap_height,
               grid_gap = 0.2, grid_color = "gray90",
               scale_fill_gradient_fun = scale_fill_gradient2(
                 low = "deepskyblue",
@@ -211,33 +212,34 @@ overview <- function(input, output, session, srga, cl, Breaks, Color, prop, posi
       title = "Heatmap"))
   })
   
-  ## 指定した範囲内のSRscoreを持つ遺伝子のID抽出
+  ## Get the ID of the specified gene
   query <- reactive({
     srga$ensembl_gene_id[which(lapply(matched_AGIandSYMBOL(), any) == TRUE)]
   })
   
-  ## カスタムデータのoff
+  ## Select whether to include a custom gene set
   observeEvent(input$reset2, {
     updateRadioButtons(session, 
                        inputId = "source",
-                       choices = c("positiveSRscore (SRscore ≧ 1)",
-                                   "negativeSRscore (SRscore ≦ -1)"),
+                       choices = c("positive SRscore (SRscore ≧ 1).",
+                                   "negative SRscore (SRscore ≦ -1).",
+                                   "both of the above."),
                        selected = "")
   })
   
   observeEvent(input$analysis, {
     withProgress(message = "", {
       if (is.null(input$source)) {
-        rv$earesult <- enrichGO(gene = query(),
+        rv$earesult <- enricher(gene = query(),
                                 TERM2GENE = gokegg,
                                 pvalueCutoff = 0.05,
                                 maxGSSize = 2000)
-      } else if (input$source == "positiveSRscore (SRscore ≧ 1)") {
+      } else if (input$source == "positive SRscore (SRscore ≧ 1).") {
         rv$earesult <- enricher(gene = query(),
                                 TERM2GENE = positive,
                                 pvalueCutoff = 0.05,
                                 maxGSSize = 2000)
-      } else if (input$source == "negativeSRscore (SRscore ≦ -1)") {
+      } else if (input$source == "negative SRscore (SRscore ≦ -1).") {
         rv$earesult <- enricher(gene = query(),
                                 TERM2GENE = negative,
                                 pvalueCutoff = 0.05,
@@ -266,7 +268,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color, prop, posi
   
   return(
     list(geneid = reactive(rv$df$ensembl_gene_id[input$atlas_rows_selected]))
-  )
+    )
 }
 
 ## Tab : Abiotic and biotic stress ####
@@ -353,7 +355,6 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
       rv$metadata <- datatable(
         metadata,
         selection = "single",
-        escape = FALSE,
         rownames = FALSE,
         options = list(paging = FALSE,
                        scrollY = "1000px",
@@ -366,7 +367,6 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     rv$metadata <- datatable(
       metadata,
       selection = "single",
-      escape = FALSE,
       rownames = FALSE,
       options = list(paging = FALSE,
                      scrollY = "1000px",
@@ -384,12 +384,11 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
   }
   })
   
-  ### SRratio ≧ 2のストレス処理サンプルのみを含むメタデータの取得 ####
+  ### Acquisition of metadata containing only stress-treated samples that correspond to SRratio ≥ 2 ####
   observeEvent(input$button_metadata_more, {
     rv$metadata <- datatable(
       metadata[more(), ],
       selection = "single",
-      escape = FALSE,
       rownames = FALSE,
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      dom = 'flrtBip', 
@@ -399,12 +398,11 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     )
   })
   
-  ### -2 < SRratio < 2のストレス処理サンプルのみを含むメタデータの取得 ####
+  ### Acquisition of metadata containing only stress-treated samples that correspond to -2 < SRratio < 2 ####
   observeEvent(input$button_metadata_middle, {
     rv$metadata <- datatable(
       metadata[middle(), ],
       selection = "single",
-      escape = FALSE,
       rownames = FALSE,
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      dom = 'flrtBip', 
@@ -414,12 +412,11 @@ stress <- function(input, output, session, ratio, srga, selectedRow, metadata) {
     )
   })
   
-  ### SRratio ≦ -2のストレス処理サンプルのみを含むメタデータの取得 ####
+  ### Acquisition of metadata containing only stress-treated samples that correspond to SRratio ≤ -2 ####
   observeEvent(input$button_metadata_less, {
     rv$metadata <- datatable(
       metadata[less(), ],
       selection = "single",
-      escape = FALSE,
       rownames = FALSE,
       options = list(columnDefs = list(list(className = 'dt-nowrap', targets = "_all")),
                      dom = 'flrtBip', 

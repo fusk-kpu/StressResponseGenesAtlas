@@ -46,9 +46,8 @@ url <- rep(paste0("https://string-db.org/cgi/network?identifiers=",
 STRING <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # TAIR
-url <- rep(paste0("https://www-arabidopsis-org.translate.goog/servlets/TairObject?type=locus&name=", 
-                  SRscore_microarray$ensembl_gene_id, 
-                  "&_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja&_x_tr_pto=sc"))
+url <- rep(paste0("https://www.arabidopsis.org/locus?name=", 
+                  SRscore_microarray$ensembl_gene_id))
 TAIR <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # ThaleMine
@@ -93,17 +92,17 @@ genefinder_microarray <- genefinder_microarray[colnames_microarray]
 genefinder_microarray <- as.matrix(genefinder_microarray)
 
 # データ集計
-list_microarray <- list(ABA_metadatam, 
-                        Cold_metadatam,
-                        DC3000_metadatam,
-                        Drought_metadatam,
-                        Heat_metadatam,
-                        `High-light_metadatam`,
-                        Hypoxia_metadatam,
-                        Osmotic_metadatam,
-                        Oxidation_metadatam,
-                        Salt_metadatam,
-                        Wound_metadatam
+list_microarray <- list(ABA_metadatam = ABA_metadatam, 
+                        Cold_metadatam = Cold_metadatam,
+                        DC3000_metadatam = DC3000_metadatam,
+                        Drought_metadatam = Drought_metadatam,
+                        Heat_metadatam = Heat_metadatam,
+                        `High-light_metadatam` = `High-light_metadatam`,
+                        Hypoxia_metadatam = Hypoxia_metadatam,
+                        Osmotic_metadatam = Osmotic_metadatam,
+                        Oxidation_metadatam = Oxidation_metadatam,
+                        Salt_metadatam = Salt_metadatam,
+                        Wound_metadatam = Wound_metadatam
 )
 ## 対象サンプルの集計
 numof_control_ma <- list_microarray %>%
@@ -173,9 +172,8 @@ url <- rep(paste0("https://string-db.org/cgi/network?identifiers=",
 STRING <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # TAIR
-url <- rep(paste0("https://www-arabidopsis-org.translate.goog/servlets/TairObject?type=locus&name=", 
-                  SRscore_rnaseq$ensembl_gene_id, 
-                  "&_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja&_x_tr_pto=sc"))
+url <- rep(paste0("https://www.arabidopsis.org/locus?name=", 
+                  SRscore_rnaseq$ensembl_gene_id))
 TAIR <- paste0("<a href = ", "'", url, "'", blank, ">", link, "</a>")
 
 # ThaleMine
@@ -220,17 +218,17 @@ genefinder_rnaseq <- genefinder_rnaseq[colnames_rnaseq]
 genefinder_rnaseq <- as.matrix(genefinder_rnaseq)
 
 # データ集計
-list_rnaseq <- list(ABA_metadatar, 
-                    Cold_metadatar,
-                    DC3000_metadatar,
-                    Drought_metadatar,
-                    Heat_metadatar,
-                    `High-light_metadatar`,
-                    Hypoxia_metadatar,
-                    Osmotic_metadatar,
-                    Oxidation_metadatar,
-                    Salt_metadatar,
-                    Wound_metadatar
+list_rnaseq <- list(ABA_metadatar = ABA_metadatar, 
+                    Cold_metadatar = Cold_metadatar,
+                    DC3000_metadatar = DC3000_metadatar,
+                    Drought_metadatar = Drought_metadatar,
+                    Heat_metadatar = Heat_metadatar,
+                    `High-light_metadatar` = `High-light_metadatar`,
+                    Hypoxia_metadatar = Hypoxia_metadatar,
+                    Osmotic_metadatar = Osmotic_metadatar,
+                    Oxidation_metadatar = Oxidation_metadatar,
+                    Salt_metadatar = Salt_metadatar,
+                    Wound_metadatar = Wound_metadatar
 )
 ## 対象サンプルの集計
 numof_control_rs <- list_rnaseq %>%
@@ -254,7 +252,7 @@ numof_series_rs <- unlist(numof_series_rs)
 collections_rs <- rbind(numof_control_rs, numof_treatment_rs, numof_series_rs)
 collections_rs <- as.data.frame(collections_rs)
 colnames(collections_rs) <- colnames_rnaseq
-
+## データの収集状況をアプリ画面に表示する
 CollectionsInfo <- function(stress) {
   HTML(paste0(
     "<h4> # of control samples : ", stress[1],

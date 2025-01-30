@@ -1,0 +1,59 @@
+---
+output: html_document
+---
+
+<style>
+ol {
+  font-size: 18px;
+}
+</style>
+
+# **Quick start**
+### &ensp;This section offers a brief explanation and operational steps for the main features of AtSRGA. For more detailed instructions, please click the “Tutorial” tab in the sidebar and download the tutorial file.
+
+## 1. Search
+### &ensp;Check the SRscore* of genes of interest.
+1. Click the "Microarray" tab or the "RNA-Seq" tab in the sidebar, then select the “Atlas” tab.
+2. Enter a list of genes (AGI code or SYMBOL) in the lower-left section of the main screen (if you do not have a list, click the "Example" button).
+3. Click the “Submit” button to display the atlas corresponding to the entered genes at the top of the screen.
+4. To reset, click the “Reset Table” button at the top of the main screen.
+
+*SRscore = Stress Response score, representing a consistent tendency of upregulation or downregulation across multiple datasets.
+
+## 2. Heatmap representation
+### &ensp;Output results as a heatmap.
+1. After completing steps 1-3 above, click the "Plot" button at the bottom of the main screen to generate a heatmap.
+2. cUse the interface above the “Plot” button to adjust the y-axis label or the height of the heatmap as needed, then click the “Plot” button again to update the display.
+
+
+## 3. Viewing SRratio** and associated metadata
+### &ensp;Check the experimental conditions under which expression changes occurred.
+1. After completing step 1-1, click on any row (or multiple rows) in the atlas.
+2. Click the tab labeled with the name of the stress of interest at the top of the main screen.
+3. Click the "Show SRratio" button to display the SRratio of the selected gene for each experimental sample.
+4. Click the "Show Metadata" button to display metadata related to the selected stress.
+5. Click any row in the table at the top, then click the "Show Metadata" button again to display metadata with color-coded experimental samples where the SRratio is ≥2 or ≤-2.
+
+**SRratio = Expression ratios under stress and control conditions.
+
+
+## 4. Template matching
+### &ensp;Find genes with similar SRscore patterns.
+1. After completing step 1-1, click on any row in the atlas.
+2. Click the “Template Matching” tab in the sidebar.
+3. Click the “Plot” button to generate a heatmap of matching genes.
+4. Use the interface above the “Plot” button to adjust parameters, such as the distance calculation method, number of matching genes, y-axis label, or heatmap height, as needed. Click the “Plot” button again to update the display.
+
+
+
+## 5. Functional enrichment analysis
+### &ensp;Interpret biological functions.
+1. After completing step 1-3, click the “Analysis” button in the lower-right of the main screen to start enrichment analysis based on gene sets defined by Gene Ontology and KEGG.
+2. Once the analysis is complete, a dot plot will appear at the bottom of the main screen.
+3. Use the interface below the “Analysis” button to adjust parameters, such as the x-axis label, the number of displayed items, the number of characters per line break, or the height of the dot plot as needed.
+4. Optionally, use the interface above the “Analysis” button to include our customized gene sets for further analysis.
+
+## 6. Links
+### &ensp;Use external genome-wide resources.
+#### Each gene listed in AtSRGA is annotated with links to external genome-wide resources, such as TAIR  and KEGG, facilitating seamless data analysis and development of a hypothesis. After completing step 1-1, scroll right on the Atlas.
+
