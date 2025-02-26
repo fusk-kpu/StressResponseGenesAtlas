@@ -192,6 +192,7 @@ overview <- function(input, output, session, srga, cl, Breaks, Color, gokegg, po
                 high = "hotpink",
                 midpoint = 0
               ),
+              key.title = "SRscore",
               Rowv = FALSE,
               Colv = FALSE,
               cellnote = set_rownames(rv$df[cl], value = rv$df[, input$identifier]),
@@ -529,6 +530,7 @@ TemplateMatch <- function(input, output, session, query, selectRow, srga, cl, Br
                 high = "hotpink",
                 midpoint = 0
               ),
+              key.title = "SRscore",
               Rowv = FALSE,
               Colv = FALSE)
   )

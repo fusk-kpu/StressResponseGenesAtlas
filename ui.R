@@ -176,7 +176,7 @@ ui <- dashboardPage(
                 width = "100%",
                 HTML(
                   "<h3>For more detail infomation and operating instruction, please see ",
-                  "<a href =  https://github.com/fusk-kpu/StressResponseGenesAtlas/raw/main/AtSRGA_tutorial_en.pdf > our tutorial file</a>.")
+                  "<a href =  https://raw.githubusercontent.com/fusk-kpu/StressResponseGenesAtlas/main/AtSRGA_tutorial_en.pdf > our tutorial file</a>.")
                 )
               ),
       tabItem(tabName = "Contact_us",
