@@ -175,8 +175,30 @@ ui <- dashboardPage(
                 title = h1(strong("Tutorial")),
                 width = "100%",
                 HTML(
-                  "<h3>For more detail infomation and operating instruction, please see ",
-                  "<a href =  https://raw.githubusercontent.com/fusk-kpu/StressResponseGenesAtlas/main/AtSRGA_tutorial_en.pdf > our tutorial file</a>.")
+                  "<h3>For more detail infomation and operating instruction, please see our tutorial video or document."),
+                br(),
+                br(),
+                br(),
+                strong("Video"),
+                br(),
+                br(),
+                HTML("English : <br>
+                     <a href = https://drive.google.com/file/d/1qA9YYD2w9aagal1EcCQQTLyaKZ5aUO4T/view?usp=sharing
+                     target = _blank rel = noopener noreferrer > https://drive.google.com/file/d/1qA9YYD2w9aagal1EcCQQTLyaKZ5aUO4T/view?usp=sharing </a>"),
+                br(),
+                br(),
+                HTML("Japanese : <br>
+                     <a href = https://drive.google.com/file/d/1SKn6xVJxjnq2P9tG5cb8UHUoTWg564qA/view?usp=drive_link
+                      target = _blank rel = noopener noreferrer > https://drive.google.com/file/d/1SKn6xVJxjnq2P9tG5cb8UHUoTWg564qA/view?usp=drive_link </a>"),
+                br(),
+                br(),
+                br(),
+                strong("Document"),
+                br(),
+                br(),
+                HTML("English : <br>
+                     <a href = https://github.com/fusk-kpu/StressResponseGenesAtlas/raw/main/AtSRGA_tutorial_en.pdf
+                     > https://github.com/fusk-kpu/StressResponseGenesAtlas/raw/main/AtSRGA_tutorial_en.pdf </a>"),
                 )
               ),
       tabItem(tabName = "Contact_us",
@@ -207,8 +229,10 @@ ui <- dashboardPage(
                 width = "100%",
                 HTML("<h3>If you find AtSRGA useful, please consider citing our publication : "),
                 br(),
-                HTML("<h3>Coming soon :)")
-              )
+                br(),
+                HTML('<h3>Yusuke Fukuda, Kohei Kawaguchi, Atsushi Fukushima "AtSRGA: A shiny application for retrieving and visualizing stress-responsive genes in Arabidopsis thaliana," Plant Physiol in press. <br>
+                     <a href = https://doi.org/10.1093/plphys/kiaf105 target = _blank rel = noopener noreferrer > https://doi.org/10.1093/plphys/kiaf105 </a>.')              
+                )
              )
       ) # tabItems
   ) #dashboardBody
